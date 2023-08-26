@@ -1,0 +1,5 @@
+set-option status-right-length 50
+set-option status-left-length 50
+set-option status-right "#[bg=default] #($HOME/bin/cpusummary)#[bg=default] #($HOME/bin/loadavg)#[bg=default] #($HOME/bin/dfu)#[bg=default] #($HOME/bin/battery)#[bg=default] #[fg=green]%Y-%m-%d@%H:%M"
+set-option status-left "#[fg=white,bold]<#[bg=default]#[fg=blue,bold]#($HOME/bin/current_kns)#[fg=cyan]:#($HOME/src/internal/gitops-tools/bin/kcontext.tmux)#[fg=white,bold]> "
+setw -g window-status-current-style fg=red,bg=default
