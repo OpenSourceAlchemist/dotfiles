@@ -1,0 +1,34 @@
+# Aliases for kubernetes
+
+alias k=kubectl
+alias kg="k get"
+alias ke="k edit"
+alias kd="k describe"
+alias kl="k logs"
+alias kgp="kg po"
+alias kdp="kd po"
+alias kge="kubectl get events --sort-by='{.lastTimestamp}'"
+
+# Aliases for prod contexts
+alias kbo1="k --context bo1-kubernetesc2"
+
+# Aliases for dev contexts
+alias kdevbo1="k --context dev-kubernetesc2"
+
+# helm aliases
+alias hp="helm delete --purge"
+alias hl="helm list"
+
+# Aliases for kubectl output forms
+alias -g OY="-o yaml"
+alias -g OW="-o wide"
+alias -g ON="-o name"
+source <(kubectl completion zsh)
+source <(helm completion zsh)
+
+KUBECONFIG=~/.kube/config
+for conf in ~/.kube/conf.d/*.yaml
+do
+    KUBECONFIG=$KUBECONFIG:"$conf"
+done
+export KUBECONFIG

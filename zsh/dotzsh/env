@@ -1,0 +1,69 @@
+# vim: filetype=zsh :
+
+CLICOLOR=1
+for postpath in .nimble/bin go/bin google-cloud-sdk/bin
+do
+    if [ "${postpath:0:1}" != "/" ]
+    then
+      postpath="${HOME}/${postpath}"
+    fi
+    if [ -d "$postpath" ]
+    then
+        if [[ "$PATH" =~ $postpath ]]
+        then
+            continue
+        else
+            export PATH="${PATH}:${postpath}"
+        fi
+    fi
+done
+
+# Helps ensure Ruby builds use more up-to-date OpenSSL
+if command -v brew >/dev/null 2>&1
+then
+  export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
+fi
+
+
+count=4
+for prepath in /usr/local/bin .local/bin .local/service-mesh-bin .local/dotbin .local/srebin /home/linuxbrew/.linuxbrew/bin .rbenv/bin
+do
+    if [ "${prepath:0:1}" != "/" ]
+    then
+      prepath="${HOME}/${prepath}"
+    fi
+    if [ -d "$prepath" ]
+    then
+        if [[ "${path[$count]}" = $prepath ]]
+        then
+            :
+        else
+            export PATH="${prepath}:${PATH}"
+        fi
+    fi
+    count=$((count - 1))
+done
+
+# RBenv supports
+if [[ -x ~/.rbenv/bin/rbenv ]]
+then
+    eval "$(~/.rbenv/bin/rbenv init - zsh)"
+elif command -v rbenv >/dev/null 2>&1
+then
+    eval "$(rbenv init - zsh)"
+fi
+
+# Go supports
+if [ -d ~/go ]
+then
+  GOPATH=~/go
+  export GOPATH
+fi
+# Home-based runit services
+export SVDIR="$HOME/service"
+
+# Lib input customizations
+export INPUTRC=~/.inputrc
+
+export EDITOR=vim
+export MAILNAME=kevin@opensourcealchemist.com
