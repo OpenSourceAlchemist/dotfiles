@@ -1,0 +1,7 @@
+Include config.d/home
+
+Host 10.*
+ForwardAgent yes
+ControlPath ~/.ssh/cm-%r@%h:%p
+ControlMaster auto
+ControlPersist 2m
