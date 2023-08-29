@@ -1,0 +1,15 @@
+Rxvt.foreground: grey
+Rxvt.background: [80]black
+Rxvt.depth: 32
+#Rxvt.shading: 24
+Rxvt.font: xft:Hack-Regular:pixelsize=13:antialias=true
+Rxvt.font1: xft:Hack-Regular:pixelsize=13:antialias=true
+Rxvt.font2: xft:Hack-Regular:pixelsize=13:antialias=true
+Rxvt.font3: xft:Hack-Regular:pixelsize=13:antialias=true
+Rxvt.font4: xft:Hack-Regular:pixelsize=13:antialias=true
+Rxvt.scrollBar: False
+Rxvt.border: False
+Rxvt.saveLines: 300
+Rxvt.cursorBlink: True
+Rxvt.pointerBlank: True
+Rxvt.geometry: 80x25
