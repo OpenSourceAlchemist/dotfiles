@@ -7,8 +7,8 @@ setopt histignorealldups sharehistory notify
 bindkey -e
 
 # Keep 1000 lines of history within the shell and save it to ~/.zsh_history:
-HISTSIZE=1000
-SAVEHIST=1000
+HISTSIZE=100000
+SAVEHIST=100000
 HISTFILE=~/.zsh_history
 
 #Antigen
@@ -48,6 +48,8 @@ source ~/.zsh/kaliases
 
 [ -f /home/linuxbrew/.linuxbrew/opt/asdf/libexec/asdf.sh ] && source /home/linuxbrew/.linuxbrew/opt/asdf/libexec/asdf.sh
 
+eval "$(rbenv init - zsh)"
+
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 export GPG_TTY=$(tty)
@@ -56,4 +58,8 @@ if command -v direnv >/dev/null 2>&1
 then
   eval "$(direnv hook zsh)"
 fi
+
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
 
