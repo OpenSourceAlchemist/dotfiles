@@ -5,7 +5,7 @@ Repository for my dotfiles and minor scripting to make installation and maintena
 ### Workstation
 tmux rsync bzip2 vim-nox rxvt-unicode keychain zsh zsh-antigen zsh-doc zsh-syntax-highlighting mosh compton xclip xscreensaver
 #### From brew
-direnv asdf fzf podman
+direnv mise fzf podman
 #### External
 google-chrome-stable  From google
 Homebrew from brew.sh

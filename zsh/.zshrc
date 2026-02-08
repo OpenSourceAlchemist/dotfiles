@@ -46,8 +46,6 @@ source ~/.zsh/aliases
 source ~/.zsh/env
 source ~/.zsh/kaliases
 
-[ -f /home/linuxbrew/.linuxbrew/opt/asdf/libexec/asdf.sh ] && source /home/linuxbrew/.linuxbrew/opt/asdf/libexec/asdf.sh
-
 eval "$(rbenv init - zsh)"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

@@ -1,1 +1,1 @@
-[ ] Replace asdf usage with mise
+[x] Replace asdf usage with mise

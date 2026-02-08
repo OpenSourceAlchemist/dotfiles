@@ -11,7 +11,7 @@ BACKUP_DIR="$HOME/.dotfiles_backup_$(date +%Y%m%d%H%M%S)"
 
 # --- Dependency Checking ---
 echo "Checking for dependencies..."
-DEPS=("zsh" "vim" "tmux" "git" "fzf" "direnv" "terraform" "gh" "asdf")
+DEPS=("zsh" "vim" "tmux" "git" "fzf" "direnv" "terraform" "gh" "mise")
 MISSING_DEPS=()
 HAS_WARNING=0
 
@@ -30,7 +30,7 @@ if [ ${#MISSING_DEPS[@]} -gt 0 ]; then
     for dep in "${MISSING_DEPS[@]}"; do
       case "$dep" in
         "gh") PKGS+=("github-cli") ;;
-        "asdf") echo "  -> Warning: 'asdf' requires manual installation. Skipping auto-install." ; HAS_WARNING=1 ;;
+        "mise") echo "  -> Warning: 'mise' requires manual installation. Skipping auto-install." ; HAS_WARNING=1 ;;
         *) PKGS+=("$dep") ;;
       esac
     done
@@ -43,7 +43,7 @@ if [ ${#MISSING_DEPS[@]} -gt 0 ]; then
     for dep in "${MISSING_DEPS[@]}"; do
       case "$dep" in
         "gh") PKGS+=("github-cli") ;;
-        "asdf") echo "  -> Warning: 'asdf' requires manual installation. Skipping auto-install." ; HAS_WARNING=1 ;;
+        "mise") echo "  -> Warning: 'mise' requires manual installation. Skipping auto-install." ; HAS_WARNING=1 ;;
         *) PKGS+=("$dep") ;;
       esac
     done
@@ -78,8 +78,8 @@ declare -a FILES_TO_SYMLINK=(
     "git/.gitconfig"
     "tmux/.tmux.conf"
     "tmux/.tmux.conf.goodies"
-    "asdf/.asdfrc"
-    "asdf/.tool-versions"
+    "mise/.asdfrc"
+    "mise/.tool-versions"
     "direnv/.envrc"
     "fzf/.fzf.bash"
     "fzf/.fzf.zsh"
