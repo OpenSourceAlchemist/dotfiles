@@ -11,28 +11,56 @@ BACKUP_DIR="$HOME/.dotfiles_backup_$(date +%Y%m%d%H%M%S)"
 
 # --- Dependency Checking ---
 echo "Checking for dependencies..."
+DEPS=("zsh" "vim" "tmux" "git" "fzf" "direnv" "terraform" "gh" "asdf")
+MISSING_DEPS=()
 HAS_WARNING=0
-check_dep() {
-  if ! command -v "$1" &> /dev/null; then
-    echo "  -> Warning: '$1' is not installed. Some configurations may not work."
-    HAS_WARNING=1
-  else
-    echo "  -> Found '$1'."
-  fi
-}
 
-check_dep "zsh"
-check_dep "vim"
-check_dep "tmux"
-check_dep "git"
-check_dep "fzf"
-check_dep "direnv"
-check_dep "terraform"
-check_dep "gh"
-check_dep "asdf"
+for dep in "${DEPS[@]}"; do
+  if ! command -v "$dep" &> /dev/null; then
+    MISSING_DEPS+=("$dep")
+  else
+    echo "  -> Found '$dep'."
+  fi
+done
+
+if [ ${#MISSING_DEPS[@]} -gt 0 ]; then
+  if [ -f /etc/debian_version ]; then
+    echo "Debian-based system detected. Attempting to install missing dependencies..."
+    PKGS=()
+    for dep in "${MISSING_DEPS[@]}"; do
+      case "$dep" in
+        "gh") PKGS+=("github-cli") ;;
+        "asdf") echo "  -> Warning: 'asdf' requires manual installation. Skipping auto-install." ; HAS_WARNING=1 ;;
+        *) PKGS+=("$dep") ;;
+      esac
+    done
+    if [ ${#PKGS[@]} -gt 0 ]; then
+      sudo apt-get update && sudo apt-get install -y "${PKGS[@]}" || HAS_WARNING=1
+    fi
+  elif [ -f /etc/alpine-release ]; then
+    echo "Alpine-based system detected. Attempting to install missing dependencies..."
+    PKGS=()
+    for dep in "${MISSING_DEPS[@]}"; do
+      case "$dep" in
+        "gh") PKGS+=("github-cli") ;;
+        "asdf") echo "  -> Warning: 'asdf' requires manual installation. Skipping auto-install." ; HAS_WARNING=1 ;;
+        *) PKGS+=("$dep") ;;
+      esac
+    done
+    if [ ${#PKGS[@]} -gt 0 ]; then
+      sudo apk add "${PKGS[@]}" || HAS_WARNING=1
+    fi
+  else
+    for dep in "${MISSING_DEPS[@]}"; do
+      echo "  -> Warning: '$dep' is not installed. Some configurations may not work."
+    done
+    echo "Please install missing dependencies manually for your platform."
+    HAS_WARNING=1
+  fi
+fi
 
 if [ "$HAS_WARNING" -eq 1 ]; then
-    echo "Please install the missing dependencies to ensure all dotfiles work correctly."
+    echo "Some dependencies could not be automatically installed. Please check the output above."
     echo ""
 fi
 # --- End Dependency Checking ---
