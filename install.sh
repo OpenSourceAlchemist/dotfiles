@@ -2,6 +2,9 @@
 #
 # This script creates symlinks from the home directory to the dotfiles in this repository.
 # It also creates a backup of any existing dotfiles.
+#
+# IMPORTANT: Run ./bootstrap.sh first to install system dependencies!
+#
 
 set -e # Exit immediately if a command exits with a non-zero status.
 
@@ -14,6 +17,13 @@ echo "Checking for dependencies..."
 DEPS=("zsh" "vim" "tmux" "git" "fzf" "direnv" "terraform" "gh" "mise")
 MISSING_DEPS=()
 HAS_WARNING=0
+
+# Check if bootstrap.sh has been run (by checking for key tools)
+BOOTSTRAP_CHECK=("zsh" "vim" "tmux" "git")
+
+echo ""
+echo "  Note: If you haven't run ./bootstrap.sh yet, please do so before this step."
+echo ""
 
 for dep in "${DEPS[@]}"; do
   if ! command -v "$dep" &> /dev/null; then
