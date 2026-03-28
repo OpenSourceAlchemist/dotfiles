@@ -1,0 +1,91 @@
+# SSH - Private keys and sensitive files
+# Never commit these!
+.ssh/*_key
+.ssh/*_key.*
+.ssh/known_hosts
+.ssh/config.d/*
+!.ssh/config.d/.gitkeep
+.ssh/config.d/*.pub
+
+# GitHub CLI - Contains auth tokens
+dotconfig/gh/hosts.yml
+
+# Personal/Local Configuration Overrides (user-specific)
+.dotfiles.local
+.dotfiles.override
+.*.local
+.*.override
+config.local
+config.override
+.env.local
+.env.override
+
+# ZSH
+# Zsh cache and function dumps
+.zcompdump*
+.zshrc.pre-oh-my-zsh
+
+# Vim/Neovim
+# Swap files
+*.swp
+*.swo
+*.swn
+.*.swp
+.*.swo
+# Backup files
+*.bak
+*.backup
+# Ex info
+.exrc.local
+# Sessions (if storing personal mappings)
+.session
+
+# Tmux
+# Socket files (shouldn't exist in repo, but just in case)
+tmux-*/
+
+# Vim plugins (if using a plugins directory that gets cloned)
+# Uncomment if you use a local plugins directory:
+# .vim/pack/*/start/*
+# .vim/pack/*/opt/*
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Editor-specific
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+*.project
+*.projectile
+
+# OS-generated files
+.Trashes
+*~
+
+# Backup files created by installer
+.dotfiles_backup*/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+
+# Personal notes or TODO files not meant for repo
+notes.md
+secrets.md
+credentials.md
+
+# Internal tool references (optional - adjust if these paths should be ignored)
+# Comment out these lines if you want to track symlinks to internal tools
+# src/internal/
