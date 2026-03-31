@@ -1,0 +1,8 @@
+# mise (asdf) configuration
+# https://mise.jdx.dev/
+
+# Use legacy version files (.ruby-version, .node-version, etc.)
+legacy_version_file = true
+
+# Disable version warning
+disable_warning_outdated_asdf = true

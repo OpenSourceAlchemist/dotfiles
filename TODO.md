@@ -42,7 +42,9 @@
 - [ ] Update README with installation badges/status
 
 ## Testing
-- [ ] Test on fresh Debian system
+- [x] Build test harness with Podman/Debian 13
+- [x] Fix install.sh symlink path bug (`..bashrc` → `.bashrc`)
+- [x] Add missing `.asdfrc` file
 - [ ] Test on fresh Alpine system
 - [ ] Test on fresh macOS system
 - [ ] Test shell switching (bash -> zsh)

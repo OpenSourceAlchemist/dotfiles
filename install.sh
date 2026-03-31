@@ -133,7 +133,7 @@ for item in "${FILES_TO_SYMLINK[@]}"; do
     # If home_path is the same as repo_path, it means we use the default naming convention
     if [ "$repo_path" == "$home_path" ]; then
         # e.g., "bash/.bashrc" becomes ".bashrc"
-        home_path=".${repo_path##*/}"
+        home_path="${repo_path##*/}"
     fi
 
     create_symlink "$repo_path" "$home_path"

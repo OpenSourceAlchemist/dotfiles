@@ -24,17 +24,17 @@ log_test() {
 
 log_pass() {
     echo -e "${GREEN}[PASS]${NC} $1"
-    ((PASSED++))
+    PASSED=$((PASSED + 1))
 }
 
 log_fail() {
     echo -e "${RED}[FAIL]${NC} $1"
-    ((FAILED++))
+    FAILED=$((FAILED + 1))
 }
 
 log_skip() {
     echo -e "${YELLOW}[SKIP]${NC} $1"
-    ((SKIPPED++))
+    SKIPPED=$((SKIPPED + 1))
 }
 
 assert_file_exists() {
@@ -163,7 +163,8 @@ echo ""
 # Test 7: Verify idempotency (run again)
 echo "--- Idempotency Test ---"
 log_test "Running installation again (should handle existing symlinks)..."
-if su -c "cd $DOTFILES_DIR && bash install.sh" "$TEST_USER" 2>&1 | grep -q "correct symlink already exists"; then
+IDEMPOTENCY_OUTPUT=$(su -c "cd $DOTFILES_DIR && bash install.sh" "$TEST_USER" 2>&1)
+if echo "$IDEMPOTENCY_OUTPUT" | grep -q "correct symlink already exists"; then
     log_pass "Idempotency check passed - handles existing symlinks"
 else
     log_fail "Idempotency check failed"
