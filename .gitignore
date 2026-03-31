@@ -89,3 +89,6 @@ credentials.md
 # Internal tool references (optional - adjust if these paths should be ignored)
 # Comment out these lines if you want to track symlinks to internal tools
 # src/internal/
+
+# Test harness
+test/*.log

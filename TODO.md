@@ -1,11 +1,11 @@
 # Dotfiles Installation Improvements Checklist
 
 ## Critical Security
-- [ ] Create `.gitignore` to prevent committing sensitive data
-  - [ ] SSH private keys
-  - [ ] API tokens and credentials
-  - [ ] Personal config overrides
-  - [ ] Editor backup files
+- [x] Create `.gitignore` to prevent committing sensitive data
+  - [x] SSH private keys
+  - [x] API tokens and credentials
+  - [x] Personal config overrides
+  - [x] Editor backup files
 
 ## Installation Enhancements
 - [ ] Create `bootstrap.sh` for system dependency installation
@@ -28,8 +28,8 @@
   - [ ] `/usr/share/zsh-antigen/antigen.zsh`
   - [ ] `kevin@opensourcealchemist.com`
   - [ ] Internal paths (`~/src/internal/*`)
-- [ ] Create `.dotfiles.local` override file mechanism
-- [ ] Fix missing `ssh/config.d/` directory (create or remove reference)
+- [x] Create `.dotfiles.local` override file mechanism
+- [x] Fix missing `ssh/config.d/` directory (create or remove reference)
 - [ ] Handle mise installation in `bootstrap.sh` (currently skips)
 - [ ] Add macOS/Homebrew support to installer
 - [ ] Auto-install antigen in user's home directory

@@ -1,4 +1,10 @@
 # Dependencies: antigen
+# Dotfiles override mechanism - users can create ~/.dotfiles.local
+# with custom settings that override the defaults
+if [ -f ~/.dotfiles.local ]; then
+  source ~/.dotfiles.local
+fi
+
 # Set up the prompt
 
 setopt histignorealldups sharehistory notify

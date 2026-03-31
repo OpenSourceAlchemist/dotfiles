@@ -1,0 +1,2 @@
+# Private SSH configuration - do not commit to git
+# This file can be local-only or symlinked from private storage
