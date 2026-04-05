@@ -14,7 +14,7 @@ BACKUP_DIR="$HOME/.dotfiles_backup_$(date +%Y%m%d%H%M%S)"
 
 # --- Dependency Checking ---
 echo "Checking for dependencies..."
-DEPS=("zsh" "vim" "tmux" "git" "fzf" "direnv" "terraform" "gh" "mise")
+DEPS=("zsh" "vim" "tmux" "git" "fzf" "direnv" "tofu" "gh" "mise")
 MISSING_DEPS=()
 HAS_WARNING=0
 
@@ -93,7 +93,7 @@ declare -a FILES_TO_SYMLINK=(
     "direnv/.envrc"
     "fzf/.fzf.bash"
     "fzf/.fzf.zsh"
-    "terraform/.terraformrc"
+    "terraform/.terraformrc"  # OpenTofu uses same .terraformrc config file
     "Xorg/.Xdefaults"
     "ssh/config:.ssh/config" # Note: target path is .ssh/config
     "dotconfig/gh/config.yml:.config/gh/config.yml"

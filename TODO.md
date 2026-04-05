@@ -33,10 +33,10 @@
 - [x] Handle mise installation in `bootstrap.sh` (currently skips)
 - [x] Add macOS/Homebrew support to installer
 - [ ] Auto-install antigen in user's home directory
-- [ ] Migrate from Terraform to OpenTofu (open-source fork)
-  - [ ] Update `bootstrap.sh` to install `tofu` instead of `terraform`
-  - [ ] Replace `.terraformrc` with OpenTofu equivalent
-  - [ ] Migrate any existing Terraform state/configurations
+- [x] Migrate from Terraform to OpenTofu (open-source fork)
+  - [x] Update `bootstrap.sh` to install `tofu` instead of `terraform`
+  - [x] Keep `.terraformrc` filename for OpenTofu compatibility
+  - [x] Migrate any existing Terraform state/configurations
 
 ## Documentation
 - [x] Create `INSTALL.md` with step-by-step instructions

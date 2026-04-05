@@ -81,6 +81,13 @@ $RECYCLE.BIN/
 *.tmp
 *.temp
 
+# OpenTofu State and Cache
+.tofu/
+.tofu_state
+*.tofu_state
+.tofu_state.*
+.tofu_state.lock*
+
 # Personal notes or TODO files not meant for repo
 notes.md
 secrets.md

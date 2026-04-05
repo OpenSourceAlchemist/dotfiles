@@ -37,7 +37,7 @@ This is a **cross-platform dotfiles management repository** that:
 ├── mise/             # mise/asdf tool versions
 ├── shell/            # Shared shell configuration (.profile)
 ├── ssh/              # SSH configuration (includes config.d/ for local overrides)
-├── terraform/        # Terraform configuration
+├── terraform/        # OpenTofu configuration (terraformrc compatible)
 ├── tmux/             # tmux configuration (.tmux.conf, .tmux.conf.goodies)
 ├── vim/              # Vim configuration (.vimrc)
 ├── Xorg/             # X11 configuration (.Xdefaults)
@@ -67,7 +67,7 @@ The `install.sh` script creates symlinks according to this mapping:
 | `mise/.asdfrc` | `~/.asdfrc` |
 | `fzf/.fzf.bash` | `~/.fzf.bash` |
 | `fzf/.fzf.zsh` | `~/.fzf.zsh` |
-| `terraform/.terraformrc` | `~/.terraformrc` |
+| `terraform/.terraformrc` | `~/.terraformrc` | (OpenTofu config, backward compatible filename)
 | `Xorg/.Xdefaults` | `~/.Xdefaults` |
 | `dotconfig/gh/config.yml` | `~/.config/gh/config.yml` |
 | `dotconfig/gh/hosts.yml` | `~/.config/gh/hosts.yml` |
@@ -77,7 +77,7 @@ The `install.sh` script creates symlinks according to this mapping:
 ### bootstrap.sh
 - **Purpose**: Installs system-level dependencies
 - **OS Detection**: Debian, Alpine, macOS, RHEL/Fedora
-- **Special Tools**: mise, fzf, direnv, terraform, gh, antigen
+- **Special Tools**: mise, fzf, direnv, tofu (OpenTofu), gh, antigen
 - **Entry Point**: Always run this BEFORE `install.sh`
 
 ### install.sh
@@ -172,7 +172,7 @@ The `install.sh` script creates symlinks according to this mapping:
 | **Environment** | `~/.envrc`, `~/.tool-versions` |
 | **Tooling** | `~/.fzf.bash`, `~/.fzf.zsh` |
 | **Graphics** | `~/.Xdefaults` |
-| **Applications** | `~/.config/gh/*`, `~/.terraformrc` |
+| **Applications** | `~/.config/gh/*`, `~/.terraformrc` (OpenTofu) |
 
 ## CI/CD Context
 
@@ -185,6 +185,7 @@ The `install.sh` script creates symlinks according to this mapping:
 | Term | Definition |
 |------|------------|
 | **Dotfile** | A hidden config file starting with `.` |
+| **OpenTofu (tofu)** | Open-source fork of Terraform, compatible with Terraform configurations |
 | **mise** | Modern project/runtime version manager (asdf-compatible) |
 | **direnv** | Environment variable manager that loads on directory change |
 | **antigen** | Zsh plugin manager |

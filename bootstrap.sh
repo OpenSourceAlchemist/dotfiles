@@ -478,40 +478,40 @@ install_direnv() {
     fi
 }
 
-install_terraform() {
-    log_info "Checking terraform installation..."
+install_opentofu() {
+    log_info "Checking OpenTofu installation..."
     
-    if command_exists terraform; then
-        log_success "terraform is already installed"
+    if command_exists tofu; then
+        log_success "OpenTofu (tofu) is already installed"
         return 0
     fi
     
-    log_info "Installing terraform..."
+    log_info "Installing OpenTofu..."
     if command_exists brew; then
-        brew install terraform
+        brew install opentofu
     elif command_exists apt-get; then
-        sudo apt-get install -y software-properties-common
-        sudo add-apt-repository -y ppa:hashicorp/terraform 2>/dev/null || true
-        sudo apt-get update -qq 2>/dev/null || true
-        sudo apt-get install -y terraform
+        # Add OpenTofu PPA and install
+        sudo apt-get install -y gnupg curl
+        curl -fsSL https://opentofu.org/install-deb | sudo bash -s --
+        sudo apt-get update -qq
+        sudo apt-get install -y tofu
     elif command_exists apk; then
-        # Add Alpine repo
-        wget -qO- https://get.hashicorp.com/gpgkey | gpg --dearmor | sudo dd of=/etc/apk/keys/hashicorp.gpg
-        sudo apk add --repository https://dl-cdn.alpinelinux.org/alpine/edge/testing/ terraform
+        # Alpine: add community repo or install from binary
+        apk add --no-cache tofu
     elif command_exists dnf || command_exists yum; then
-        # Install HashiCorp repo on RHEL/Fedora
-        echo "  Installing HashiCorp release repository..."
+        # Fedora/RHEL: Add OpenTofu repository
+        echo "  Installing OpenTofu release repository..."
         if command_exists dnf; then
             sudo dnf install -y dnf-utils
-            sudo dnf config-manager --add-repo https://rpm.releases.hashicorp.com/fedora/hashicorp.repo
-            sudo dnf install -y terraform
+            sudo dnf config-manager --add-repo https://opentofu.org/tfcli.repo
+            sudo dnf install -y tofu
         elif command_exists yum; then
             sudo yum install -y yum-utils
-            sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
-            sudo yum install -y terraform
+            sudo yum-config-manager --add-repo https://opentofu.org/tfcli.repo
+            sudo yum install -y tofu
         fi
     else
-        log_warn "Please install terraform manually: https://developer.hashicorp.com/terraform/downloads"
+        log_warn "Please install OpenTofu manually: https://opentofu.org/docs/intro/install/"
     fi
 }
 
@@ -618,7 +618,7 @@ main() {
             echo "    - keychain, xclip, mosh"
             echo ""
             echo "  Optional:"
-            echo "    - fzf, direnv, terraform, gh (GitHub CLI)"
+            echo "    - fzf, direnv, mise, opentofu, gh (GitHub CLI)"
             echo ""
             exit 1
             ;;
@@ -632,7 +632,7 @@ main() {
     install_mise
     install_fzf
     install_direnv
-    install_terraform
+    # install_terraform()  # Removed: Replaced with install_opentofu() for major version update
     install_gh
     install_zsh_antigen
     

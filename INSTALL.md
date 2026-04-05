@@ -24,7 +24,7 @@ This repository contains configuration files (dotfiles) for:
 | **Shell** | zsh, bash, keychain |
 | **Editor** | vim |
 | **Terminal** | tmux, rxvt-unicode |
-| **Tools** | git, fzf, direnv, mise, terraform, gh |
+| **Tools** | git, fzf, direnv, mise, OpenTofu, gh |
 | **X11** | Xorg, Openbox |
 | **SSH** | ssh client configuration |
 
@@ -56,7 +56,7 @@ If automated installation fails, ensure these packages are installed before proc
 zsh vim tmux git rsync bzip2 keychain xclip mosh
 
 # Optional (recommended)
-fzf direnv mise terraform gh
+fzf direnv mise opentofu gh
 ```
 
 ---
@@ -107,7 +107,7 @@ Run the bootstrap script to automatically install all required packages:
 The script will:
 - Detect your operating system
 - Install required system packages
-- Offer to install optional tools (mise, fzf, direnv, terraform, gh)
+- Offer to install optional tools (mise, fzf, direnv, opentofu, gh)
 - Install zsh-antigen for zsh plugin management
 
 **If the script fails** or your OS is not detected, install dependencies manually:
@@ -152,11 +152,11 @@ git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 curl -sfL https://direnv.net/install.sh | bash
 ```
 
-#### Terraform
+#### OpenTofu (terraform-compatible IaC tool)
 
 ```bash
 # Use your package manager or download from:
-# https://developer.hashicorp.com/terraform/downloads
+# https://opentofu.org/docs/intro/install/
 ```
 
 #### GitHub CLI (gh)
