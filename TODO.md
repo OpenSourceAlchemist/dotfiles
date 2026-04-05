@@ -53,3 +53,4 @@
 - [ ] Support for different "profiles" (work, personal, etc.)
 - [ ] Add backup rotation/cleanup
 - [x] CI/CD for testing on multiple environments
+- [ ] Implement `hk` for pre-commit hook parallelization
