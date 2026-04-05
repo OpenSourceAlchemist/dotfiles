@@ -57,4 +57,8 @@
 - [ ] Support for different "profiles" (work, personal, etc.)
 - [ ] Add backup rotation/cleanup
 - [x] CI/CD for testing on multiple environments
-- [ ] Implement `hk` for pre-commit hook parallelization
+- [x] Implement pre-commit hook framework for linting and parallel execution
+  - [x] Create .pre-commit-config.yaml
+  - [x] Add shellcheck, markdownlint, yamllint hooks
+  - [x] Update CI/CD to run pre-commit
+  - [x] Document pre-commit setup in AGENTS.md and INSTALL.md

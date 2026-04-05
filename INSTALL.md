@@ -203,6 +203,29 @@ chsh -s $(which zsh)
 
 Log out and log back in for the change to take effect.
 
+### Step 6: Enable Pre-Commit Hooks (Optional but Recommended)
+
+To prevent committing broken code or secrets:
+
+```bash
+# Install pre-commit
+pip3 install pre-commit
+
+# Install git hooks
+pre-commit install
+
+# Run checks on all files
+pre-commit run --all-files
+```
+
+Pre-commit hooks run automatically before each commit and check:
+- Shell script syntax and style (shellcheck)
+- Markdown formatting
+- YAML validation
+- Trailing whitespace removal
+- Private key detection
+- Executable permissions on scripts
+
 ---
 
 ## Post-Installation

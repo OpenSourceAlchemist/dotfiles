@@ -1,0 +1,18 @@
+# ShellCheck configuration for dotfiles
+# https://www.shellcheck.net/wiki/
+
+# Excluded warnings:
+# SC1091: File not found (for source/require statements)
+# SC2002: Useless cat (sometimes clearer in config files)
+# SC2154: Variable not declared (for env vars passed by parent shell)
+
+skip=SC1091,SC2002,SC2154
+
+# Shell dialect to check
+shell=bash
+
+# Output format
+format=gcc
+
+# Severity level (info, warning, error)
+severity=warning

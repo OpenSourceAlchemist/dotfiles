@@ -79,7 +79,32 @@ For settings that vary between machines or users, create local override files:
 | `install.sh` | Create symlinks to dotfiles |
 | `uninstall.sh` | Remove symlinks (when available) |
 
-## Supported Systems
+## Development
+
+### Pre-Commit Hooks
+
+This project uses pre-commit hooks to ensure code quality:
+
+```bash
+# Install pre-commit
+pip3 install pre-commit
+
+# Install git hooks
+pre-commit install
+
+# Run all checks
+pre-commit run --all-files
+```
+
+Hooks validate:
+- Shell script syntax and style
+- Markdown formatting
+- YAML syntax
+- No trailing whitespace
+- No private keys committed
+- Executable permissions on scripts
+
+### Supported Systems
 
 - Debian/Ubuntu
 - Fedora/RHEL/CentOS/Rocky/AlmaLinux

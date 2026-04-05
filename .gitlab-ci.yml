@@ -207,7 +207,7 @@ secret-scanning-trufflehog:
   allow_failure: true
 
 gitignore_check:
-  stage: security
+  stage: validate
   script:
     - echo "Checking .gitignore completeness..."
     - if [ ! -f .gitignore ]; then
@@ -224,6 +224,26 @@ gitignore_check:
   rules:
     - changes:
         - .gitignore
+        - ".gitlab-ci.yml"
+
+#
+# CI CONFIG VALIDATION
+#
+
+pre_commit_config_valid:
+  stage: validate
+  image: python:3.12-alpine
+  before_script:
+    - pip3 install --no-cache-dir pre-commit>=2.9.0
+  script:
+    - echo "Validating .pre-commit-config.yaml..."
+    - pre-commit validate-config
+    - echo "✓ Pre-commit configuration is valid"
+    - pre-commit validate-manifest
+    - echo "✓ Pre-commit manifest is valid"
+  rules:
+    - changes:
+        - .pre-commit-config.yaml
         - ".gitlab-ci.yml"
 
 #

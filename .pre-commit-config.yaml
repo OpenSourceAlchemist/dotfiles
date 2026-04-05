@@ -1,0 +1,85 @@
+# Pre-commit configuration for dotfiles repository
+# Run `pre-commit install` to set up pre-commit hooks
+# Run `pre-commit run --all-files` to check all files
+
+repos:
+  # ShellCheck for all shell scripts
+  - repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.10.0
+    hooks:
+      - id: shellcheck
+        name: ShellCheck (Bash/Zsh)
+        files: ^(\.sh$|bootstrap\.sh$|install\.sh$|\.fzf\.(bash|zsh)$)
+        args: ["-e", "SC1091,SC2002,SC2154"]
+
+  # Bash Syntax Validation
+  - repo: local
+    hooks:
+      - id: bash-syntax
+        name: Bash Syntax Check (bash -n)
+        entry: bash -n
+        language: system
+        files: \.sh$
+        types: [file]
+
+  # Markdown Lint
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.38.0
+    hooks:
+      - id: markdownlint
+        name: Markdown Lint
+        files: \.md$
+        args: []
+
+  # YAML Validation
+  - repo: https://github.com/Adityac88/yamllint-precommit
+    rev: v1.29.0
+    hooks:
+      - id: yamllint
+        name: YAML Lint
+        files: ^\.gitlab-ci\.yml$
+
+  # Common hooks for all text files
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim Trailing Whitespace
+        types_or: [shell, markdown, yaml]
+      - id: end-of-file-fixer
+        name: Ensure EOF Newline
+        types_or: [shell, markdown, yaml]
+      - id: detect-private-key
+        name: Detect Private Keys
+        files: ^\.ssh/
+
+  # Check executable permissions for scripts
+  - repo: local
+    hooks:
+      - id: check-exec-permissions
+        name: Verify Executable Scripts
+        entry: bash -c '
+          set -e
+          failed=0
+          for file in "$@"; do
+            if [ -f "$file" ] && [[ "$file" == *.sh ]]; then
+              if [ ! -x "$file" ]; then
+                echo "Not executable: $file"
+                failed=1
+              fi
+            fi
+          done
+          exit $failed
+        '
+        language: system
+        files: ^.*/bootstrap\.sh$|^.*/install\.sh$
+        pass_filenames: true
+        stages: [commit]
+
+# Excluded paths
+exclude: ^(\.git/|\.dotfiles_backup_|\.tofu/|\.ssh/known_hosts)
+
+# Default settings
+default_stages: [commit]
+fail_fast: false
+minimum_pre_commit_version: "2.9.0"

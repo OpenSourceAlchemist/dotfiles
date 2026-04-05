@@ -157,9 +157,52 @@ The `install.sh` script creates symlinks according to this mapping:
 
 1. **Make Changes**: Edit dotfiles or scripts
 2. **Test Locally**: Use a clean VM/container if possible
-3. **Validate**: Check symlinks and functionality
+3. **Validate**: Run pre-commit checks
+   ```bash
+   # Install pre-commit (one-time)
+   pip3 install pre-commit
+   
+   # Install git hooks (one-time)
+   pre-commit install
+   
+   # Run on all files
+   pre-commit run --all-files
+   
+   # Run on staged files
+   pre-commit run
+   ```
 4. **Document**: Update relevant docs if behavior changes
 5. **Test Integration**: Run `bootstrap.sh` then `install.sh` on clean system
+
+## Pre-Commit Hooks
+
+This repository uses the `pre-commit` framework for automated validation:
+
+| Hook | Purpose | Files |
+|--||--|--|--------|
+| shellcheck | Bash/Zsh linting | *.sh, bootstrap.sh, install.sh, .fzf.* |
+| bash-syntax | Syntax validation (bash -n) | *.sh |
+| markdownlint | Markdown formatting | *.md |
+| yamllint | YAML validation | .gitlab-ci.yml |
+| check-exec-permissions | Verify script permissions | bootstrap.sh, install.sh |
+| trailing-whitespace | Remove trailing spaces | all text files |
+| end-of-file-fixer | Ensure newline at EOF | all text files |
+| detect-private-key | Find private keys | .ssh/* |
+
+### ShellCheck Configuration
+
+ShellCheck warnings are skipped:
+- **SC1091**: File not found (for source/require statements)
+- **SC2002**: Useless cat (sometimes clearer in config files)
+- **SC2154**: Variable not declared (for env vars passed by parent shell)
+
+### CI/CD Integration
+
+The `.gitlab-ci.yml` runs `pre-commit run --all-files` on:
+- Merge requests
+- main branch commits
+
+This replaces the previous individual validation jobs (shellcheck, bash_syntax, markdown_lint, validate_yaml).
 
 ## File Locations for Reference
 
