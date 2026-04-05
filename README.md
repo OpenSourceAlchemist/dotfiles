@@ -85,24 +85,43 @@ For settings that vary between machines or users, create local override files:
 
 This project uses pre-commit hooks to ensure code quality:
 
+#### Quick Setup
+
 ```bash
-# Install pre-commit
+# Run once to install all development tools
+./scripts/develop-setup.sh install
+
+# Or manually:
 pip3 install pre-commit
-
-# Install git hooks
 pre-commit install
-
-# Run all checks
-pre-commit run --all-files
 ```
 
-Hooks validate:
-- Shell script syntax and style
-- Markdown formatting
-- YAML syntax
+#### Available Commands
+
+| Command | Description |
+|--|--|
+| `./scripts/develop-setup.sh install` | Install pre-commit and all tools |
+| `./scripts/develop-setup.sh install-hooks` | Install git hooks only |
+| `./scripts/develop-setup.sh run` | Run checks on staged files |
+| `./scripts/develop-setup.sh run-all` | Run checks on all files |
+| `./scripts/develop-setup.sh status` | Check what's installed |
+
+#### What Gets Checked
+
+When you commit, pre-commit automatically checks:
+- Shell script syntax and style (shellcheck)
+- Markdown formatting (markdownlint)
+- YAML syntax (yamllint)
 - No trailing whitespace
-- No private keys committed
+- No private keys in .ssh/
 - Executable permissions on scripts
+
+To run all checks manually:
+```bash
+./scripts/develop-setup.sh run-all
+# or
+pre-commit run --all-files
+```
 
 ### Supported Systems
 

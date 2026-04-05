@@ -155,21 +155,32 @@ The `install.sh` script creates symlinks according to this mapping:
 
 ## Development Workflow
 
+### Setup (One-time)
+
+Run the setup script to install all development tools:
+
+```bash
+# Install pre-commit and all hooks
+./scripts/develop-setup.sh install
+
+# Or check what's installed first
+./scripts/develop-setup.sh status
+```
+
+### Making Changes
+
 1. **Make Changes**: Edit dotfiles or scripts
 2. **Test Locally**: Use a clean VM/container if possible
 3. **Validate**: Run pre-commit checks
    ```bash
-   # Install pre-commit (one-time)
-   pip3 install pre-commit
+   # On staged files (before commit)
+   ./scripts/develop-setup.sh run
    
-   # Install git hooks (one-time)
-   pre-commit install
+   # Or on all files
+   ./scripts/develop-setup.sh run-all
    
-   # Run on all files
+   # Or just use standard pre-commit
    pre-commit run --all-files
-   
-   # Run on staged files
-   pre-commit run
    ```
 4. **Document**: Update relevant docs if behavior changes
 5. **Test Integration**: Run `bootstrap.sh` then `install.sh` on clean system
@@ -191,10 +202,23 @@ This repository uses the `pre-commit` framework for automated validation:
 
 ### ShellCheck Configuration
 
-ShellCheck warnings are skipped:
+ShellCheck warnings are automatically skipped:
 - **SC1091**: File not found (for source/require statements)
 - **SC2002**: Useless cat (sometimes clearer in config files)
 - **SC2154**: Variable not declared (for env vars passed by parent shell)
+
+### Quick Setup
+
+```bash
+# Install all development tools automatically
+./scripts/develop-setup.sh install
+
+# Check what's installed
+./scripts/develop-setup.sh status
+
+# Run all checks
+./scripts/develop-setup.sh run-all
+```
 
 ### CI/CD Integration
 

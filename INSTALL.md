@@ -207,23 +207,33 @@ Log out and log back in for the change to take effect.
 
 To prevent committing broken code or secrets:
 
+#### Quick Setup
+
 ```bash
-# Install pre-commit
+# Run the development setup script (installs pre-commit automatically)
+./scripts/develop-setup.sh install
+
+# Or install manually
 pip3 install pre-commit
-
-# Install git hooks
 pre-commit install
-
-# Run checks on all files
-pre-commit run --all-files
 ```
 
-Pre-commit hooks run automatically before each commit and check:
+#### Available Commands
+
+| Command | Description |
+|--|--|
+| `./scripts/develop-setup.sh install` | Install pre-commit and all tools |
+| `./scripts/develop-setup.sh install-hooks` | Install git hooks only |
+| `./scripts/develop-setup.sh run` | Run checks on staged files |
+| `./scripts/develop-setup.sh run-all` | Run checks on all files |
+| `./scripts/develop-setup.sh status` | Check what's installed |
+
+Hooks automatically run before each commit and check:
 - Shell script syntax and style (shellcheck)
 - Markdown formatting
-- YAML validation
-- Trailing whitespace removal
-- Private key detection
+- YAML syntax
+- No trailing whitespace
+- No private keys in .ssh/
 - Executable permissions on scripts
 
 ---
