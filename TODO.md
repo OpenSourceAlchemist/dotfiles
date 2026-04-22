@@ -40,9 +40,9 @@
 
 ## Documentation
 - [x] Create `INSTALL.md` with step-by-step instructions
-- [ ] Add troubleshooting section
-- [ ] Document symlink structure clearly
-- [ ] Add compatible versions list (Version.md)
+- [x] Add troubleshooting section
+- [x] Document symlink structure clearly
+- [x] Add compatible versions list (Version.md)
 - [x] Update README with installation badges/status
 
 ## Testing

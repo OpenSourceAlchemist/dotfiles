@@ -24,6 +24,7 @@ For detailed instructions, see [INSTALL.md](INSTALL.md).
 |----------|-------------|
 | [INSTALL.md](INSTALL.md) | Complete installation guide |
 | [TODO.md](TODO.md) | Planned improvements and feature tracking |
+| [Version.md](Version.md) | Compatibility and version information |
 | [bootstrap.sh](bootstrap.sh) | System dependency installer |
 | [install.sh](install.sh) | Dotfiles symlink installer |
 
@@ -85,6 +86,43 @@ For settings that vary between machines or users, create local override files:
 - Fedora/RHEL/CentOS/Rocky/AlmaLinux
 - Alpine Linux
 - macOS (with Homebrew)
+
+## Symlink Structure
+
+This repository uses symlinks to manage dotfiles. When you run `./install.sh`, the following symlinks are created:
+
+| Home File | Repository Source | Purpose |
+|-----------|-------------------|----------|
+| `~/.bashrc` | `bash/.bashrc` | Bash shell configuration |
+| `~/.zshrc` | `zsh/.zshrc` | Zsh shell configuration |
+| `~/.vimrc` | `vim/.vimrc` | Vim editor configuration |
+| `~/.tmux.conf` | `tmux/.tmux.conf` | Tmux terminal multiplexer config |
+| `~/.gitconfig` | `git/.gitconfig` | Git global configuration |
+| `~/.ssh/config` | `ssh/config` | SSH client configuration |
+| `~/.asdfrc` | `mise/.asdfrc` | mise version manager config |
+| `~/.fzf.bash` | `fzf/.fzf.bash` | Fzf Bash integration |
+| `~/.fzf.zsh` | `fzf/.fzf.zsh` | Fzf Zsh integration |
+| `~/.config/gh/*.yml` | `*.yml` | GitHub CLI configuration |
+| `~/.config/direnv/*.toml` | `*.toml` | direnv environment overrides |
+
+**Important Files:**
+- `~/.ssh/config.d/home` - Machine-specific SSH overrides (not committed)
+- `~/.dotfiles.local` - Personal overrides (not committed)
+- `~/.zshrc.local` - Shell-specific local overrides (not committed)
+
+For complete details, see [INSTALL.md](INSTALL.md#detailed-installation).
+
+## Troubleshooting
+
+| Issue | Quick Fix |
+|-------|----------|
+| `command not found` after install | Run `exec zsh` or log out/in |
+| `antigen not found` | Clone antigen: `git clone --depth 1 https://github.com/zsh-users/antigen ~/.zsh/antigen/zsh-antigen` |
+| `mise not found` | Add `$HOME/.local/bin` to PATH |
+| SSH config errors | Create `~/.ssh/config.d/` directory |
+| Syntax errors on startup | Check `~/.dotfiles_backup_*` for original files |
+
+For detailed troubleshooting, see [INSTALL.md#troubleshooting](INSTALL.md#troubleshooting).
 
 ## License
 

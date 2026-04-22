@@ -179,6 +179,27 @@ This will:
 - Back up any existing dotfiles to `~/.dotfiles_backup_YYYYMMDDHHMMSS`
 - Create symlinks from your home directory to this repository
 
+**Symlink Map:**
+
+| Home File | Repository Source | Purpose |
+|-----------|-------------------|----------|
+| `~/.bashrc` | `bash/.bashrc` | Bash shell configuration |
+| `~/.zshrc` | `zsh/.zshrc` | Zsh shell configuration |
+| `~/.inputrc` | `shell/.inputrc` | Readline input configuration |
+| `~/.vimrc` | `vim/.vimrc` | Vim editor configuration |
+| `~/.tmux.conf` | `tmux/.tmux.conf` | Tmux terminal multiplexer config |
+| `~/.gitconfig` | `git/.gitconfig` | Git global configuration |
+| `~/.gitignore_global` | `git/.gitignore_global` | Global Git ignore patterns |
+| `~/.ssh/config` | `ssh/config` | SSH client configuration |
+| `~/.asdfrc` | `mise/.asdfrc` | mise version manager config |
+| `~/.fzf.bash` | `fzf/.fzf.bash` | Fzf Bash integration |
+| `~/.fzf.zsh` | `fzf/.fzf.zsh` | Fzf Zsh integration |
+| `~/.config/gh/hosts.yml` | `*.yml` | GitHub CLI configuration |
+| `~/.dotfiles.local` | (ignored) | Personal overrides |
+| `~/.zshrc.local` | (ignored) | Zsh config overrides |
+
+For a complete overview of all symlinks, see the [SYMLINKS.md](SYMLINKS.md) reference guide.
+
 **What gets symlinked:**
 
 | Home File | Source |
