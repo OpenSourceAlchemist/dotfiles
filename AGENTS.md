@@ -148,18 +148,86 @@ The `install.sh` script creates symlinks according to this mapping:
 ## Current TODO Items
 
 - Interactive installation mode (`--interactive`)
-- Uninstall/revert script (`uninstall.sh`)
 - Installation verification (`--verify` flag)
-- Makefile for common operations
+- Handle shell change prompt after install
 - hk for pre-commit hook parallelization
 
 ## Development Workflow
 
+### Setup (One-time)
+
+Run the setup script to install all development tools:
+
+```bash
+# Install pre-commit and all hooks
+make dev-setup
+
+# Or check what's installed first
+./dev-setup.sh --verify
+```
+
+### Making Changes
+
 1. **Make Changes**: Edit dotfiles or scripts
 2. **Test Locally**: Use a clean VM/container if possible
-3. **Validate**: Check symlinks and functionality
+3. **Validate**: Run pre-commit checks
+   ```bash
+   # On staged files (before commit)
+   pre-commit run
+   
+   # Or on all files
+   make lint
+   pre-commit run --all-files
+   ```
 4. **Document**: Update relevant docs if behavior changes
 5. **Test Integration**: Run `bootstrap.sh` then `install.sh` on clean system
+
+### Pre-Commit Hooks
+
+This repository uses the `pre-commit` framework for automated validation:
+
+| Hook | Purpose | Files |
+|--||--|--|--------|
+| shellcheck | Bash/Zsh linting | *.sh, bootstrap.sh, install.sh, .fzf.* |
+| bash-syntax | Syntax validation (bash -n) | *.sh |
+| markdownlint | Markdown formatting | *.md |
+| yamllint | YAML validation | .gitlab-ci.yml |
+| detect-private-key | Find private keys | .ssh/* |
+| trailing-whitespace | Remove trailing spaces | all text files |
+| end-of-file-fixer | Ensure newline at EOF | all text files |
+
+### ShellCheck Configuration
+
+ShellCheck warnings are automatically skipped:
+- **SC1091**: File not found (for source/require statements)
+- **SC2002**: Useless cat (sometimes clearer in config files)
+- **SC2154**: Variable not declared (for env vars passed by parent shell)
+
+### Quick Setup
+
+```bash
+# Install all development tools automatically
+./dev-setup.sh --install
+
+# Check what's installed
+./dev-setup.sh --verify
+
+# Run all checks
+make lint
+```
+
+### Helper Scripts
+
+- `scripts/run-shellcheck-parallel.sh` - Run shellcheck on all scripts in parallel
+- `scripts/run-precommit.sh` - Simple pre-commit runner wrapper
+
+### CI/CD Integration
+
+The `.gitlab-ci.yml` runs `pre-commit run --all-files` on:
+- Merge requests
+- main branch commits
+
+This replaces the previous individual validation jobs (shellcheck, bash_syntax, markdown_lint, validate_yaml).
 
 ## File Locations for Reference
 

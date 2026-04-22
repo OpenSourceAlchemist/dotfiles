@@ -78,7 +78,56 @@ For settings that vary between machines or users, create local override files:
 |--------|-------------|
 | `bootstrap.sh` | Install system dependencies |
 | `install.sh` | Create symlinks to dotfiles |
-| `uninstall.sh` | Remove symlinks (when available) |
+| `uninstall.sh` | Remove symlinks (with restore option) |
+| `dev-setup.sh` | Install development tools |
+| `scripts/run-shellcheck-parallel.sh` | Run shellcheck in parallel |
+
+## Development
+
+### Pre-Commit Hooks
+
+This project uses pre-commit hooks to ensure code quality:
+
+#### Quick Setup
+
+```bash
+# Run once to install all development tools
+./dev-setup.sh --install
+
+# Or manually:
+pip3 install pre-commit
+pre-commit install
+```
+
+#### Available Commands
+
+| Command | Description |
+|--|--|
+| `make dev-setup` | Install pre-commit and all tools |
+| `make lint` | Run all linters on all files |
+| `make verify` | Verify installation |
+| `make backup` | Create backup of existing dotfiles |
+| `./dev-setup.sh --verify` | Check what dev tools are installed |
+| `pre-commit run` | Run checks on staged files |
+| `pre-commit run --all-files` | Run checks on all files |
+
+#### What Gets Checked
+
+When you commit, pre-commit automatically checks:
+- Shell script syntax and style (shellcheck)
+- Bash syntax validation (bash -n)
+- Markdown formatting (markdownlint)
+- YAML syntax (yamllint)
+- No trailing whitespace
+- No private keys in .ssh/
+- Executable permissions on scripts
+
+To run all checks manually:
+```bash
+make lint
+# or
+pre-commit run --all-files
+```
 
 ## Supported Systems
 
