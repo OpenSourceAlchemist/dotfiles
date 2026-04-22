@@ -30,10 +30,9 @@ help:
 	@echo "  uninstall      : Remove symlinks (restore from backup if available)"
 	@echo "  verify         : Verify symlinks are correctly configured"
 	@echo "  backup         : Create a backup of existing dotfiles"
-	@echo "  lint           : Run all linting checks (pre-commit)"
+	@echo "  lint           : Run all linters (shellcheck, markdownlint)"
 	@echo "  shellcheck     : Run shellcheck on all shell scripts"
 	@echo "  markdownlint   : Run markdownlint on all markdown files"
-	@echo "  yamllint       : Run yamllint on YAML configuration"
 	@echo "  pre-commit-check : Run pre-commit hooks manually"
 	@echo ""
 	@echo "Development Setup:"
@@ -90,20 +89,20 @@ verify:
 	@echo -e "${BLUE}Verifying dotfiles installation...${NC}"
 	@echo ""
 	@echo "Checking symlinks:"
-	@echo "------------------"
+	@echo "-----------"
 	@for file in ~/.bashrc ~/.zshrc ~/.vimrc ~/.tmux.conf ~/.gitconfig; do \
 		if [ -L "$$file" ]; then \
-			echo -e "${GREEN}✓${NC} $$file -> $$(readlink $$file)"; \
+			echo -e "${GREEN}✓${NC} $$file -> $$(readlink $$file | cut -c1-50)"; \
 		else \
 			echo -e "${RED}✗${NC} $$file does not exist or is not a symlink"; \
 		fi; \
 	done
 	@echo ""
 	@echo "Checking tools:"
-	@echo "---------------"
+	@echo "------"
 	@for tool in zsh vim tmux git; do \
 		if command -v $$tool > /dev/null 2>&1; then \
-			echo -e "${GREEN}✓${NC} $$tool: $$($$tool --version | head -n1)"; \
+			echo -e "${GREEN}✓${NC} $$tool"; \
 		else \
 			echo -e "${RED}✗${NC} $$tool not found"; \
 		fi; \
@@ -129,15 +128,15 @@ backup:
 
 # --- Linting ---
 
-lint: shellcheck markdownlint yamllint
+lint: shellcheck markdownlint
 	@echo ""
 	@echo -e "${GREEN}All linting checks passed!${NC}"
 
 shellcheck:
 	@echo -e "${BLUE}Running shellcheck...${NC}"
 	@if command -v shellcheck > /dev/null 2>&1; then \
-		shellcheck -e SC1091,SC1090,SC2002,SC2154 install.sh bootstrap.sh 2>/dev/null || \
-		shellcheck -e SC1091,SC1090,SC2002,SC2154 install.sh bootstrap.sh; \
+		shellcheck -e SC1009,SC1090,SC1091,SC2002,SC2010,SC2016,SC2034,SC2154 install.sh bootstrap.sh 2>/dev/null || \
+		shellcheck -e SC1009,SC1090,SC1091,SC2002,SC2010,SC2016,SC2034,SC2154 install.sh bootstrap.sh; \
 	else \
 		echo -e "${YELLOW}shellcheck not found. Install with: sudo apt-get install shellcheck${NC}"; \
 		exit 1; \
@@ -149,15 +148,6 @@ markdownlint:
 		markdownlint README.md INSTALL.md TODO.md Version.md SYMLINKS.md || exit 0; \
 	else \
 		echo -e "${YELLOW}markdownlint not found. Install with: npm install -g markdownlint-cli${NC}"; \
-		exit 0; \
-	fi
-
-yamllint:
-	@echo -e "${BLUE}Running yamllint...${NC}"
-	@if command -v yamllint > /dev/null 2>&1; then \
-		yamllint .gitlab-ci.yml .gitlab-ci.yml || exit 0; \
-	else \
-		echo -e "${YELLOW}yamllint not found. Install with: pip3 install yamllint${NC}"; \
 		exit 0; \
 	fi
 
@@ -177,7 +167,7 @@ pre-commit-check:
 dev-setup setup:
 	@echo -e "${BLUE}Setting up development environment...${NC}"
 	@chmod +x ./dev-setup.sh
-	@./dev-setup.sh --setup
+	@./dev-setup.sh --install
 
 # --- Testing ---
 

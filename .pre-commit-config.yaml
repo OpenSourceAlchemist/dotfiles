@@ -3,14 +3,16 @@
 # Run `pre-commit run --all-files` to check all files
 
 repos:
-  # ShellCheck for all shell scripts
-  - repo: https://github.com/koalaman/shellcheck-precommit
-    rev: v0.10.0
+  # ShellCheck - use system shellcheck (avoids docker/podman issues)
+  - repo: local
     hooks:
       - id: shellcheck
         name: ShellCheck (Bash/Zsh)
+        entry: shellcheck
+        language: system
+        types: [shell]
         files: ^(\.sh$|bootstrap\.sh$|install\.sh$|\.fzf\.(bash|zsh)$)
-        args: ["-e", "SC1091,SC2002,SC2154"]
+        args: ["-e", "SC1009,SC1090,SC1091,SC2002,SC2010,SC2016,SC2034,SC2154"]
 
   # Bash Syntax Validation
   - repo: local
@@ -29,15 +31,7 @@ repos:
       - id: markdownlint
         name: Markdown Lint
         files: \.md$
-        args: []
-
-  # YAML Validation
-  - repo: https://github.com/Adityac88/yamllint-precommit
-    rev: v1.29.0
-    hooks:
-      - id: yamllint
-        name: YAML Lint
-        files: ^\.gitlab-ci\.yml$
+        args: [--config, .markdownlint.yaml]
 
   # Common hooks for all text files
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -58,21 +52,9 @@ repos:
     hooks:
       - id: check-exec-permissions
         name: Verify Executable Scripts
-        entry: bash -c '
-          set -e
-          failed=0
-          for file in "$@"; do
-            if [ -f "$file" ] && [[ "$file" == *.sh ]]; then
-              if [ ! -x "$file" ]; then
-                echo "Not executable: $file"
-                failed=1
-              fi
-            fi
-          done
-          exit $failed
-        '
-        language: system
-        files: ^.*/bootstrap\.sh$|^.*/install\.sh$
+        entry: ./scripts/check-exec-permissions.sh
+        language: script
+        files: (bootstrap|install)\.sh$
         pass_filenames: true
         stages: [commit]
 

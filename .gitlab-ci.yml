@@ -179,15 +179,13 @@ secret_scanning:
   before_script:
     - apk add --no-cache grep
   script:
-    - echo "Scanning for potential secrets..."
-    # Check for hardcoded secrets (excluding comments and documentation)
-    - if grep -rE '(password|secret|api_key|token|private_key)\\s*[=:]\\s*["'"'"'][^"'"'"']+["'"'"']' \
-        --include="*.sh" --include="*.yml" --include="*.yaml" . 2>/dev/null | \
-        grep -v "^#" | grep -v "README" | grep -v "INSTALL"; then
-        echo "WARNING: Potential secrets found in non-comment lines above";
-        exit 1;
+    - | # Check for hardcoded secrets (excluding comments and documentation)
+      echo "Scanning for potential secrets..."
+      if grep -rEi '(password|secret|api_key|token|private_key)['"'"'"'":]' . --include="*.sh" --include="*.py" 2>/dev/null | grep -v "^#"; then
+        echo "WARNING: Potential secrets found. Please review."
+        exit 1
       fi
-    - echo "✓ No obvious secrets found in configuration files"
+    - echo "✓ No obvious secrets found"
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 

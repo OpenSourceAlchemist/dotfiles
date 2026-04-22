@@ -24,12 +24,12 @@ failed=0
 # Function to check a single script
 check_script() {
     local script="$1"
-    
+
     if [ ! -f "$script" ]; then
         echo "❌ SKIP: $script (not found)"
         return 0
     fi
-    
+
     if shellcheck -e SC1091,SC2002,SC2154 "$script" 2>&1; then
         echo -e "✅ $script"
         return 0

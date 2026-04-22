@@ -124,18 +124,18 @@ BREW_PACKAGES=(
 check_and_install_apt() {
     local pkg="$1"
     local alt_pkg="$2"  # Alternative package name
-    
+
     # Check if the package or alternative exists
     if command_exists "$pkg" || command_exists "$alt_pkg" || dpkg -l | grep -q "^ii  $pkg "; then
         echo -e "  ${GREEN}✓${NC} $pkg is already installed"
         return 0
     fi
-    
+
     if [ "$alt_pkg" ] && dpkg -l | grep -q "^ii  $alt_pkg "; then
         echo -e "  ${GREEN}✓${NC} $alt_pkg (as $pkg) is already installed"
         return 0
     fi
-    
+
     echo "  Installing $pkg..."
     if command_exists sudo; then
         sudo apt-get install -y "$pkg"
@@ -147,12 +147,12 @@ check_and_install_apt() {
 
 check_and_install_apk() {
     local pkg="$1"
-    
+
     if command_exists "$pkg"; then
         echo -e "  ${GREEN}✓${NC} $pkg is already installed"
         return 0
     fi
-    
+
     echo "  Installing $pkg..."
     if command_exists sudo; then
         sudo apk add "$pkg"
@@ -164,7 +164,7 @@ check_and_install_apk() {
 
 install_debian_dependencies() {
     log_info "Installing Debian/Ubuntu dependencies..."
-    
+
     # Update package lists
     echo "  Updating package lists..."
     if command_exists sudo; then
@@ -172,7 +172,7 @@ install_debian_dependencies() {
     else
         apt-get update -qq
     fi
-    
+
     local missing=()
     local deps=(
         "zsh:zsh"
@@ -188,10 +188,10 @@ install_debian_dependencies() {
         "xscreensaver:xscreensaver"
         "compton:compton:picom"
     )
-    
+
     for dep in "${deps[@]}"; do
         IFS=':' read -r target primary alt <<< "$dep"
-        
+
         # Check if already installed
         if command_exists "$primary" || ( [ -n "$alt" ] && command_exists "$alt" ); then
             echo -e "  ${GREEN}✓${NC} $target ($primary) is already installed"
@@ -200,7 +200,7 @@ install_debian_dependencies() {
             missing+=("$primary")
         fi
     done
-    
+
     if [ ${#missing[@]} -gt 0 ]; then
         echo "  Installing ${#missing[@]} missing package(s)..."
         if command_exists sudo; then
@@ -216,7 +216,7 @@ install_debian_dependencies() {
 
 install_alpine_dependencies() {
     log_info "Installing Alpine dependencies..."
-    
+
     # Update package lists
     echo "  Updating package lists..."
     if command_exists sudo; then
@@ -224,7 +224,7 @@ install_alpine_dependencies() {
     else
         apk update
     fi
-    
+
     local missing=()
     local deps=(
         "zsh"
@@ -239,7 +239,7 @@ install_alpine_dependencies() {
         "xclip"
         "xscreensaver"
     )
-    
+
     for pkg in "${deps[@]}"; do
         if command_exists "$pkg"; then
             echo -e "  ${GREEN}✓${NC} $pkg is already installed"
@@ -248,7 +248,7 @@ install_alpine_dependencies() {
             missing+=("$pkg")
         fi
     done
-    
+
     if [ ${#missing[@]} -gt 0 ]; then
         echo "  Installing ${#missing[@]} missing package(s)..."
         if command_exists sudo; then
@@ -264,7 +264,7 @@ install_alpine_dependencies() {
 
 install_rhel_dependencies() {
     log_info "Installing RHEL/CentOS/Fedora/Rocky dependencies..."
-    
+
     # Update package lists
     echo "  Updating package lists..."
     if command_exists dnf; then
@@ -284,7 +284,7 @@ install_rhel_dependencies() {
             yum upgrade -y -qq
         fi
     fi
-    
+
     local missing=()
     local deps=(
         "zsh"
@@ -297,10 +297,10 @@ install_rhel_dependencies() {
         "mosh"
         "xclip"
     )
-    
+
     for dep in "${deps[@]}"; do
         IFS=':' read -r pkg name <<< "$dep"
-        
+
         # Check if package is already installed
         if command_exists "$name"; then
             echo -e "  ${GREEN}✓${NC} $name is already installed"
@@ -309,7 +309,7 @@ install_rhel_dependencies() {
             missing+=("$pkg")
         fi
     done
-    
+
     # xscreensaver is in EPEL on RHEL/CentOS, so we need to enable it first
     if command_exists sudo; then
         if ! rpm -qa | grep -q epel-release; then
@@ -326,7 +326,7 @@ install_rhel_dependencies() {
             sudo dnf config-manager --set-enabled cr 2>/dev/null || true
         fi
     fi
-    
+
     # Check for xscreensaver separately
     if command_exists xscreensaver; then
         echo -e "  ${GREEN}✓${NC} xscreensaver is already installed"
@@ -334,7 +334,7 @@ install_rhel_dependencies() {
         echo "  Marking xscreensaver for installation (may need EPEL)..."
         missing+=("xscreensaver")
     fi
-    
+
     if [ ${#missing[@]} -gt 0 ]; then
         echo "  Installing ${#missing[@]} missing package(s)..."
         if command_exists sudo; then
@@ -350,7 +350,7 @@ install_rhel_dependencies() {
 
 install_homebrew_dependencies() {
     log_info "Installing macOS/Homebrew dependencies..."
-    
+
     # Install Homebrew if not present
     if ! command_exists brew; then
         log_warn "Homebrew not found. Installing Homebrew..."
@@ -359,12 +359,12 @@ install_homebrew_dependencies() {
         echo "    brew shellenv"
         log_info "Continuing with remaining installations..."
     fi
-    
+
     # Evaluate brew shellenv if available
     if command_exists brew; then
         eval "$(/opt/homebrew/bin/brew shellenv 2>/dev/null || /usr/local/bin/brew shellenv 2>/dev/null)" || true
     fi
-    
+
     local missing=()
     local deps=(
         "zsh"
@@ -374,7 +374,7 @@ install_homebrew_dependencies() {
         "rsync"
         "mosh"
     )
-    
+
     for pkg in "${deps[@]}"; do
         if brew list --versions "$pkg" &>/dev/null; then
             echo -e "  ${GREEN}✓${NC} $pkg is already installed"
@@ -383,7 +383,7 @@ install_homebrew_dependencies() {
             missing+=("$pkg")
         fi
     done
-    
+
     if [ ${#missing[@]} -gt 0 ]; then
         echo "  Installing ${#missing[@]} missing package(s)..."
         brew install "${missing[@]}"
@@ -397,20 +397,20 @@ install_homebrew_dependencies() {
 
 install_mise() {
     log_info "Checking mise installation..."
-    
+
     if command_exists mise; then
         log_success "mise is already installed"
         return 0
     fi
-    
+
     log_info "Installing mise..."
-    
+
     # Try to detect preferred installation method
     if [ -L "$HOME/.local/bin/mise" ] || [ -f "$HOME/.local/bin/mise" ]; then
         log_info "mise found in $HOME/.local/bin (not in PATH)"
         return 0
     fi
-    
+
     # Install mise via official installer
     if command_exists curl; then
         curl https://mise.run | sh
@@ -428,18 +428,18 @@ install_mise() {
 
 install_fzf() {
     log_info "Checking fzf installation..."
-    
+
     if command_exists fzf; then
         log_success "fzf is already installed"
         return 0
     fi
-    
+
     # Check if it's installed as a git submodule (common setup)
     if [ -d "$HOME/.fzf" ] || [ -d "$DOTFILES_DIR/fzf" ]; then
         log_info "fzf directory found. Run '$DOTFILES_DIR/fzf/install.sh' or 'git submodule update --init'"
         return 0
     fi
-    
+
     log_info "Installing fzf..."
     if command_exists brew; then
         brew install fzf
@@ -458,12 +458,12 @@ install_fzf() {
 
 install_direnv() {
     log_info "Checking direnv installation..."
-    
+
     if command_exists direnv; then
         log_success "direnv is already installed"
         return 0
     fi
-    
+
     log_info "Installing direnv..."
     if command_exists brew; then
         brew install direnv
@@ -480,12 +480,12 @@ install_direnv() {
 
 install_opentofu() {
     log_info "Checking OpenTofu installation..."
-    
+
     if command_exists tofu; then
         log_success "OpenTofu (tofu) is already installed"
         return 0
     fi
-    
+
     log_info "Installing OpenTofu..."
     if command_exists brew; then
         brew install opentofu
@@ -517,12 +517,12 @@ install_opentofu() {
 
 install_gh() {
     log_info "Checking GitHub CLI (gh) installation..."
-    
+
     if command_exists gh; then
         log_success "gh is already installed"
         return 0
     fi
-    
+
     log_info "Installing GitHub CLI..."
     if command_exists brew; then
         brew install gh
@@ -548,24 +548,24 @@ install_gh() {
 
 install_zsh_antigen() {
     log_info "Checking zsh-antigen installation..."
-    
+
     # Common locations where antigen might be installed
     local antigen_paths=(
         "/usr/share/zsh-antigen/antigen.zsh"
         "/usr/local/share/zsh-antigen/antigen.zsh"
         "$HOME/.zsh/antigen/zsh-antigen/antigen.zsh"
     )
-    
+
     for path in "${antigen_paths[@]}"; do
         if [ -f "$path" ]; then
             log_success "antigen is already installed at $path"
             return 0
         fi
     done
-    
+
     log_info "Installing antigen to ~/.zsh/antigen..."
     mkdir -p "$HOME/.zsh"
-    
+
     if command_exists brew; then
         brew install antigen
     elif command_exists apt-get; then
@@ -581,7 +581,7 @@ install_zsh_antigen() {
         log_warn "Please install antigen manually: git clone --depth 1 https://github.com/zsh-users/antigen ~/.zsh/antigen/zsh-antigen"
         return 1
     fi
-    
+
     log_success "antigen installation complete"
 }
 
@@ -593,9 +593,9 @@ main() {
     echo -e "${BLUE}  ${GREEN}Dotfiles Bootstrap${NC} - Installing Dependencies"
     echo -e "${BLUE}════════════════════════════════════════════════════${NC}"
     echo ""
-    
+
     detect_os
-    
+
     case "$OS" in
         debian|ubuntu|Linux)
             install_debian_dependencies
@@ -623,11 +623,11 @@ main() {
             exit 1
             ;;
     esac
-    
+
     # Install special tools (check if present, offer to install if missing)
     echo ""
     log_info "Checking/installing special tools..."
-    
+
     # Tools that are more commonly installed manually
     install_mise
     install_fzf
@@ -635,7 +635,7 @@ main() {
     # install_terraform()  # Removed: Replaced with install_opentofu() for major version update
     install_gh
     install_zsh_antigen
-    
+
     echo ""
     echo -e "${GREEN}════════════════════════════════════════════════════${NC}"
     log_success "Bootstrap complete!"

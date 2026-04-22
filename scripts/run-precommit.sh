@@ -45,7 +45,7 @@ if [ "$1" == "--all" ]; then
     log_info "Running pre-commit hooks on ALL files..."
     pre-commit run --all-files
     exit_code=$?
-    
+
     if [ $exit_code -eq 0 ]; then
         log_success "All pre-commit hooks passed!"
     else
@@ -56,7 +56,7 @@ else
     log_info "Running pre-commit hooks on staged files..."
     pre-commit run
     exit_code=$?
-    
+
     if [ $exit_code -eq 0 ]; then
         log_success "All pre-commit hooks passed!"
     else

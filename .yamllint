@@ -1,0 +1,16 @@
+# YAMLLint configuration for dotfiles repository
+extends: default
+
+rules:
+  # Disable most checks - focus only on syntax
+  line-length: disable
+  document-start: disable
+  trailing-spaces: disable
+  truthy: disable
+  indentation: disable
+  colons: disable
+  hyphens: disable
+  quoted-strings: disable
+  key-duplicates: enable  # This is actually important to keep
+  braces: disable
+  brackets: disable

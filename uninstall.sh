@@ -61,7 +61,7 @@ find_latest_backup() {
 remove_symlink() {
     local file="$1"
     local target="$HOME/$file"
-    
+
     if [ -L "$target" ]; then
         rm -f "$target"
         log_success "Removed symlink: ~/$file"
@@ -75,7 +75,7 @@ remove_symlink() {
 restore_backup() {
     local backup_dir="$1"
     local file="$2"
-    
+
     if [ -f "$backup_dir/$file" ]; then
         cp "$backup_dir/$file" "$HOME/$file"
         log_success "Restored: ~/$file from backup"
@@ -114,7 +114,7 @@ main() {
     local restore_backup=false
     local skip_backup_check=false
     local force=false
-    
+
     # Parse arguments
     while [[ $# -gt 0 ]]; do
         case "$1" in
@@ -141,15 +141,15 @@ main() {
                 ;;
         esac
     done
-    
+
     print_welcome
-    
+
     # Confirmation prompt
     if [ "$force" = false ]; then
         echo -e "${YELLOW}Warning:${NC} This will remove all symlinks created by the dotfiles installer."
         echo "Your original files (if any) will be lost unless you have a backup."
         echo ""
-        
+
         # Check for backups
         if [ "$skip_backup_check" = false ]; then
             LATEST_BACKUP=$(find_latest_backup)
@@ -162,18 +162,18 @@ main() {
                 echo ""
             fi
         fi
-        
+
         read -p "Are you sure you want to continue? (y/N): " confirm
         if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
             echo "Aborted."
             exit 0
         fi
     fi
-    
+
     echo ""
     log_info "Removing symlinks..."
     echo ""
-    
+
     # Remove all managed symlinks
     for file in "${MANAGED_FILES[@]}"; do
         # Skip SSH config.d includes as they may be user-created
@@ -183,16 +183,16 @@ main() {
         fi
         remove_symlink "$file"
     done
-    
+
     echo ""
     log_info "Removing symlinked directories..."
-    
+
     # Handle vim directory if symlinked
     if [ -L "$HOME/.vim" ]; then
         rm -rf "$HOME/.vim"
         log_success "Removed symlink: ~/.vim"
     fi
-    
+
     # Handle config directories
     for dir in ".config/gh" ".config/direnv"; do
         target="$HOME/$dir"
@@ -201,14 +201,14 @@ main() {
             log_success "Removed symlink: ~/$dir"
         fi
     done
-    
+
     echo ""
-    
+
     # Restore from backup if requested
     if [ "$restore_backup" = true ]; then
         log_info "Restoring from backup..."
         echo ""
-        
+
         LATEST_BACKUP=$(find_latest_backup)
         if [ -n "$LATEST_BACKUP" ] && [ -d "$LATEST_BACKUP" ]; then
             # Create temp file to store backup path for restore
@@ -216,13 +216,13 @@ main() {
                 local backup_id="$LATEST_BACKUP"
                 echo "$backup_id" > /tmp/last_backup_info
             }
-            
+
             create_temp_backup_info
-            
+
             for file in "${MANAGED_FILES[@]}"; do
                 restore_backup "$LATEST_BACKUP" "$file"
             done
-            
+
             echo ""
             log_success "Restored from backup: $LATEST_BACKUP"
             log_info "If you want to restore more files manually:"
@@ -236,13 +236,13 @@ main() {
             fi
         fi
     fi
-    
+
     echo ""
     echo -e "${GREEN}════════════════════════════════════════${NC}"
     log_success "Uninstallation complete!"
     echo -e "${GREEN}════════════════════════════════════════${NC}"
     echo ""
-    
+
     # Post-uninstallation notes
     echo "What you should do next:"
     echo "  1. If you removed symlinks to your shell config,"

@@ -174,7 +174,7 @@ make dev-setup
    ```bash
    # On staged files (before commit)
    pre-commit run
-   
+
    # Or on all files
    make lint
    pre-commit run --all-files

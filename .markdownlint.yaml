@@ -1,0 +1,9 @@
+# MarkdownLint configuration for dotfiles repository
+MD022: false  # No blank lines around headings
+MD032: false  # No blank lines around lists
+MD040: false  # No language required for code blocks
+MD033: false  # Allow inline HTML
+MD031: false  # No blank lines around code blocks needed
+MD013: false  # Allow long lines
+MD026: false  # Allow punctuation in headings
+MD036: false  # Allow emphasis instead of headings

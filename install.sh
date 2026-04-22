@@ -153,4 +153,3 @@ echo ""
 echo "Dotfiles installation complete!"
 echo "Backed up old files to $BACKUP_DIR"
 echo "You may need to restart your shell (e.g., 'exec zsh' or 'source ~/.bashrc') for changes to take effect."
-
