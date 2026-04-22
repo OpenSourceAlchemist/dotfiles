@@ -13,14 +13,14 @@
   - [x] Install all required packages in one step
   - [x] Handle mise, brew, antigen separately
 - [ ] Add interactive installation mode (`--interactive` or `--component`)
-- [ ] Add uninstall/revert script (`uninstall.sh`)
+- [x] Add uninstall/revert script (`uninstall.sh`)
 - [ ] Add installation verification (`--verify` flag)
 - [ ] Handle shell change prompt after install
-- [ ] Create `Makefile` for common operations
-  - [ ] `make install`
-  - [ ] `make uninstall`
-  - [ ] `make verify`
-  - [ ] `make backup`
+- [x] Create `Makefile` for common operations
+  - [x] `make install`
+  - [x] `make uninstall`
+  - [x] `make verify`
+  - [x] `make backup`
 
 ## Configuration Improvements
 - [ ] Replace hardcoded paths with variables
