@@ -27,6 +27,7 @@ This is a **cross-platform dotfiles management repository** that:
 
 ```
 .
+├── agy/               # Antigravity CLI configuration (statusline.sh)
 ├── bash/              # Bash configuration (.bashrc, .bash_profile)
 ├── dotconfig/         # Application configs (not in root)
 │   ├── gh/           # GitHub CLI configuration
@@ -71,6 +72,7 @@ The `install.sh` script creates symlinks according to this mapping:
 | `Xorg/.Xdefaults` | `~/.Xdefaults` |
 | `dotconfig/gh/config.yml` | `~/.config/gh/config.yml` |
 | `dotconfig/gh/hosts.yml` | `~/.config/gh/hosts.yml` |
+| `agy/statusline.sh` | `~/.gemini/antigravity-cli/statusline.sh` |
 
 ## Key Scripts
 
@@ -118,6 +120,7 @@ The `install.sh` script creates symlinks according to this mapping:
 - SSH known_hosts
 - SSH local config overrides (`.ssh/config.d/*`)
 - GitHub CLI auth tokens (`dotconfig/gh/hosts.yml`)
+- Antigravity CLI / Gemini OAuth tokens (`*oauth-token*`, `oauth_creds.json`) and runtime state (`agy/settings.json`, `agy/history.jsonl`)
 - Personal `.local` and `.override` files
 
 ### Always Protected By:

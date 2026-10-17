@@ -10,6 +10,14 @@
 # GitHub CLI - Contains auth tokens
 dotconfig/gh/hosts.yml
 
+# Antigravity CLI / Gemini - Contains auth tokens and runtime state
+*oauth-token*
+oauth_creds.json
+google_accounts.json
+agy/settings.json
+agy/history.jsonl
+agy/*.db*
+
 # Personal/Local Configuration Overrides (user-specific)
 .dotfiles.local
 .dotfiles.override
