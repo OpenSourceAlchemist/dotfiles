@@ -102,6 +102,7 @@ declare -a FILES_TO_SYMLINK=(
     "zsh/dotzsh/aliases:.dotzsh/aliases"
     "zsh/dotzsh/env:.dotzsh/env"
     "zsh/dotzsh/kaliases:.dotzsh/kaliases"
+    "agy/statusline.sh:.gemini/antigravity-cli/statusline.sh"
 )
 
 echo "Creating backup directory at $BACKUP_DIR"
@@ -148,6 +149,46 @@ for item in "${FILES_TO_SYMLINK[@]}"; do
 
     create_symlink "$repo_path" "$home_path"
 done
+
+# Configure Antigravity CLI (agy) statusLine in settings.json without overwriting runtime state
+AGY_SETTINGS="$HOME/.gemini/antigravity-cli/settings.json"
+AGY_STATUSLINE_CMD="$HOME/.gemini/antigravity-cli/statusline.sh"
+mkdir -p "$(dirname "$AGY_SETTINGS")"
+
+if [ ! -f "$AGY_SETTINGS" ]; then
+    echo "Creating initial $AGY_SETTINGS with statusLine configuration..."
+    cat > "$AGY_SETTINGS" <<EOF
+{
+  "statusLine": {
+    "type": "",
+    "command": "$AGY_STATUSLINE_CMD",
+    "enabled": true
+  }
+}
+EOF
+    chmod 600 "$AGY_SETTINGS"
+elif command -v jq &> /dev/null; then
+    echo "Updating statusLine configuration in $AGY_SETTINGS..."
+    tmp_settings="$(mktemp)"
+    jq --arg cmd "$AGY_STATUSLINE_CMD" '.statusLine = {"type": "", "command": $cmd, "enabled": true}' "$AGY_SETTINGS" > "$tmp_settings" && mv "$tmp_settings" "$AGY_SETTINGS"
+    chmod 600 "$AGY_SETTINGS"
+elif command -v python3 &> /dev/null; then
+    echo "Updating statusLine configuration in $AGY_SETTINGS..."
+    python3 - "$AGY_SETTINGS" "$AGY_STATUSLINE_CMD" <<'PYEOF'
+import json, os, sys
+path, cmd = sys.argv[1], sys.argv[2]
+try:
+    with open(path, "r") as f:
+        data = json.load(f)
+except Exception:
+    data = {}
+data["statusLine"] = {"type": "", "command": cmd, "enabled": True}
+with open(path, "w") as f:
+    json.dump(data, f, indent=2)
+    f.write("\n")
+os.chmod(path, 0o600)
+PYEOF
+fi
 
 echo ""
 echo "Dotfiles installation complete!"
