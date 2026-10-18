@@ -33,6 +33,25 @@ if command -v jq >/dev/null 2>&1; then
     | if $rem != null and $rem != "" then (1 - ($rem | tonumber)) * 100 else empty end
   ')
 
+  extra_quotas=$(echo "$input" | jq -r '
+    .quota // {} | to_entries
+    | map(
+        select(.key | test("^(gemini|3p)-(5h|weekly)$") | not)
+        | select(.value.remaining_fraction != null and .value.remaining_fraction != "")
+        | (
+            if (.key | test("argon|pro")) then "Pro"
+            elif (.key | test("wtu")) then "WTU"
+            else (.key | sub("^(gemini|3p)-"; "") | sub("-(weekly|5h)$"; ""))
+            end
+          ) as $name
+        | {name: $name, pct: ((1 - (.value.remaining_fraction | tonumber)) * 100)}
+      )
+    | group_by(.name)
+    | map({name: .[0].name, pct: (map(.pct) | max)})
+    | .[]
+    | "\(.name):\(.pct)"
+  ')
+
   general_quota=$(echo "$input" | jq -r '.quota.used_percentage // .usage.used_percentage // empty')
 else
   eval "$(python3 -c '
@@ -65,6 +84,33 @@ def calc_pct(suffix):
     return ""
 five_hour_pct = calc_pct("-5h")
 seven_day_pct = calc_pct("-weekly")
+base_keys = {"gemini-5h", "3p-5h", "gemini-weekly", "3p-weekly"}
+extra_dict = {}
+for k, v in q.items():
+    if k in base_keys or not isinstance(v, dict):
+        continue
+    rem = v.get("remaining_fraction")
+    if rem is not None and rem != "":
+        try:
+            pct = (1.0 - float(rem)) * 100.0
+            k_lower = k.lower()
+            if "argon" in k_lower or "pro" in k_lower:
+                name = "Pro"
+            elif "wtu" in k_lower:
+                name = "WTU"
+            else:
+                name = k
+                for p in ["gemini-", "3p-"]:
+                    if name.startswith(p):
+                        name = name[len(p):]
+                for s in ["-weekly", "-5h"]:
+                    if name.endswith(s):
+                        name = name[:-len(s)]
+            if name not in extra_dict or pct > extra_dict[name]:
+                extra_dict[name] = pct
+        except Exception:
+            pass
+extra_quotas = "\n".join(f"{name}:{pct}" for name, pct in extra_dict.items())
 general_quota = q.get("used_percentage")
 if general_quota is None:
     general_quota = (d.get("usage") or {}).get("used_percentage")
@@ -77,6 +123,7 @@ for k, v in [
     ("context_limit", str(context_limit)),
     ("five_hour_pct", str(five_hour_pct)),
     ("seven_day_pct", str(seven_day_pct)),
+    ("extra_quotas", str(extra_quotas)),
     ("general_quota", str(general_quota)),
 ]:
     print(f"{k}={shlex.quote(v)}")
@@ -171,6 +218,24 @@ if [ -n "$seven_day_pct" ] && [ "$seven_day_pct" != "null" ] && [ "$seven_day_pc
     quota_info="${quota_info} | "
   fi
   quota_info="${quota_info}7d: ${color_7d}${seven_day_pct_int}%\033[0m"
+fi
+
+if [ -n "$extra_quotas" ]; then
+  while IFS=':' read -r eq_name eq_pct; do
+    [ -z "$eq_name" ] || [ -z "$eq_pct" ] && continue
+    eq_pct_int=$(printf "%.0f" "$eq_pct" 2>/dev/null || echo 0)
+    if [ "$eq_pct_int" -lt 50 ]; then
+      color_eq="\033[32m"
+    elif [ "$eq_pct_int" -lt 80 ]; then
+      color_eq="\033[33m"
+    else
+      color_eq="\033[31m"
+    fi
+    if [ -n "$quota_info" ]; then
+      quota_info="${quota_info} | "
+    fi
+    quota_info="${quota_info}${eq_name}: ${color_eq}${eq_pct_int}%\033[0m"
+  done <<< "$extra_quotas"
 fi
 
 # If no rate limit info found in the JSON payload, check for any general quota keys or fall back
