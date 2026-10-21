@@ -171,13 +171,58 @@ curl -sfL https://direnv.net/install.sh | bash
 Run the installation script to symlink dotfiles:
 
 ```bash
+# Standard non-interactive installation (all components)
 ./install.sh
+
+# Interactive installation (choose which components to install)
+./install.sh --interactive
+
+# Install specific components only
+./install.sh --component shell,git
+
+# Install with an environment profile (e.g., work, personal)
+./install.sh --profile work
+
+# Verify installation without making changes
+./install.sh --verify
+
+# Clean old backups keeping the 5 most recent
+./install.sh --clean-backups
 ```
 
 This will:
 - Check for missing dependencies
 - Back up any existing dotfiles to `~/.dotfiles_backup_YYYYMMDDHHMMSS`
+- Rotate older backups to keep the 5 most recent
 - Create symlinks from your home directory to this repository
+- Execute any pre/post install hooks
+
+### Available Components for `--component`
+
+- `shell`: `~/.bashrc`, `~/.bash_profile`, `~/.profile`, `~/.zshrc`, `~/.dotzsh/*`
+- `editor`: `~/.vimrc`
+- `multiplexer`: `~/.tmux.conf`, `~/.tmux.conf.goodies`
+- `git`: `~/.gitconfig`
+- `tools`: `~/.asdfrc`, `~/.tool-versions`, `~/.envrc`, `~/.fzf.*`, `~/.terraformrc`, `~/.ssh/config`, `~/.config/gh/*`, `~/.config/openbox/*`
+- `agents`: Universal skeptical auditor rules and skills, Antigravity CLI statusline, pi-coding-agent configurations
+
+### Environment Profiles (`--profile`)
+
+Profiles allow environment-specific overlays (such as Git identity or local aliases):
+- `work`: Uses `profiles/work/gitconfig` and `profiles/work/dotfiles.local`
+- `personal`: Uses `profiles/personal/gitconfig` and `profiles/personal/dotfiles.local`
+
+Custom profiles can be created under `profiles/<name>/`.
+
+### Pre/Post Install Hooks
+
+Custom hook scripts can be run automatically before and after installation and bootstrapping:
+- **Pre-Install**: `hooks/pre-install/*` (in repo) or `~/.dotfiles.hooks.d/pre-install/*`
+- **Post-Install**: `hooks/post-install/*` (in repo) or `~/.dotfiles.hooks.d/post-install/*`
+- **Pre-Bootstrap**: `hooks/pre-bootstrap/*` (in repo) or `~/.dotfiles.hooks.d/pre-bootstrap/*`
+- **Post-Bootstrap**: `hooks/post-bootstrap/*` (in repo) or `~/.dotfiles.hooks.d/post-bootstrap/*`
+
+Any executable file in these directories is executed in alphabetical order. Non-executable files (or `.gitkeep`) are skipped.
 
 **Symlink Map:**
 

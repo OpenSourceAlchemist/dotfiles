@@ -1,0 +1,13 @@
+{
+  "defaultModel": "Qwen3.8-27B-GGUF",
+  "defaultProvider": "lemonade",
+  "defaultThinkingLevel": "medium",
+  "packages": [
+    "npm:@bytetrue/pi-web-search",
+    "npm:pi-mcp-adapter"
+  ],
+  "theme": "dark",
+  "extensions": [
+    "-builtin:mcp"
+  ]
+}

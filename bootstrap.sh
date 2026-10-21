@@ -37,6 +37,25 @@ command_exists() {
     command -v "$1" &> /dev/null
 }
 
+run_hooks() {
+    local phase="$1"
+    local hook_dirs=(
+        "$DOTFILES_DIR/hooks/$phase"
+        "$HOME/.dotfiles.hooks.d/$phase"
+    )
+
+    for dir in "${hook_dirs[@]}"; do
+        if [ -d "$dir" ]; then
+            for hook in "$dir"/*; do
+                if [ -f "$hook" ] && [ -x "$hook" ]; then
+                    log_info "Executing $phase hook: $(basename "$hook")..."
+                    "$hook" || log_warn "Hook $hook exited with status $?"
+                fi
+            done
+        fi
+    done
+}
+
 # --- OS Detection ---
 
 detect_os() {
@@ -623,6 +642,8 @@ main() {
     echo -e "${BLUE}════════════════════════════════════════════════════${NC}"
     echo ""
 
+    run_hooks "pre-bootstrap"
+
     detect_os
 
     case "$OS" in
@@ -664,6 +685,8 @@ main() {
     # install_terraform()  # Removed: Replaced with install_opentofu() for major version update
     install_gh
     install_zsh_antigen
+
+    run_hooks "post-bootstrap"
 
     echo ""
     echo -e "${GREEN}════════════════════════════════════════════════════${NC}"

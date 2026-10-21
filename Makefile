@@ -1,7 +1,7 @@
 # Dotfiles Development Makefile
 # Common operations for installation, uninstallation, and development
 
-.PHONY: help install uninstall verify backup lint test setup dev-setup pre-commit-check help gitleaks secret-scan
+.PHONY: help install uninstall verify backup clean-backups lint test setup dev-setup pre-commit-check help gitleaks secret-scan
 
 # Default target
 .DEFAULT_GOAL := help
@@ -30,6 +30,7 @@ help:
 	@echo "  uninstall      : Remove symlinks (restore from backup if available)"
 	@echo "  verify         : Verify symlinks are correctly configured"
 	@echo "  backup         : Create a backup of existing dotfiles"
+	@echo "  clean-backups  : Prune old backups keeping 5 most recent"
 	@echo "  lint           : Run all linters (shellcheck, markdownlint, gitleaks)"
 	@echo "  shellcheck     : Run shellcheck on all shell scripts"
 	@echo "  markdownlint   : Run markdownlint on all markdown files"
@@ -87,45 +88,24 @@ uninstall:
 # --- Verification ---
 
 verify:
-	@echo -e "${BLUE}Verifying dotfiles installation...${NC}"
-	@echo ""
-	@echo "Checking symlinks:"
-	@echo "-----------"
-	@for file in ~/.bashrc ~/.zshrc ~/.vimrc ~/.tmux.conf ~/.gitconfig; do \
-		if [ -L "$$file" ]; then \
-			echo -e "${GREEN}✓${NC} $$file -> $$(readlink $$file | cut -c1-50)"; \
-		else \
-			echo -e "${RED}✗${NC} $$file does not exist or is not a symlink"; \
-		fi; \
-	done
-	@echo ""
-	@echo "Checking tools:"
-	@echo "------"
-	@for tool in zsh vim tmux git; do \
-		if command -v $$tool > /dev/null 2>&1; then \
-			echo -e "${GREEN}✓${NC} $$tool"; \
-		else \
-			echo -e "${RED}✗${NC} $$tool not found"; \
-		fi; \
-	done
-	@echo ""
-	@echo "Testing shell configuration..."
-	@zsh -c 'source ~/.zshrc; echo -e "${GREEN}✓${NC} Zsh config loads successfully"' 2>/dev/null || \
-		echo -e "${YELLOW}⚠${NC} Zsh config had errors (check ~/.zshrc.local)";
-	@echo -e "${GREEN}✓${NC} Verification complete"
+	@./install.sh --verify
 
-# --- Backup ---
+# --- Backup & Cleanup ---
 
 backup:
 	@echo -e "${BLUE}Creating backup...${NC}"
 	@BACKUP_DIR="$(BACKUP_PREFIX)$$(date +%Y%m%d_%H%M%S)"; \
 	mkdir -p "$$BACKUP_DIR"; \
 	for file in .bashrc .zshrc .vimrc .tmux.conf .gitconfig .ssh/config .asdfrc .fzf.bash .fzf.zsh; do \
-		if [ -f "~/$$file" ] && [ ! -L "~/$$file" ]; then \
-			cp "~/$$file" "$$BACKUP_DIR/"; \
+		if [ -f "$$HOME/$$file" ] && [ ! -L "$$HOME/$$file" ]; then \
+			cp "$$HOME/$$file" "$$BACKUP_DIR/"; \
 		fi; \
 	done; \
 	echo "Backup created at: $$BACKUP_DIR"
+
+clean-backups:
+	@echo -e "${BLUE}Cleaning old dotfiles backups...${NC}"
+	@./install.sh --clean-backups
 
 # --- Linting ---
 

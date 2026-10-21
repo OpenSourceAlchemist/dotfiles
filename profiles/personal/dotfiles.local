@@ -1,0 +1,2 @@
+# Personal profile environment overrides
+export PROFILE="personal"

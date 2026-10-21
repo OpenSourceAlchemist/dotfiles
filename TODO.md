@@ -12,10 +12,7 @@
   - [x] Auto-detect OS (Debian/Alpine/macOS)
   - [x] Install all required packages in one step
   - [x] Handle mise, brew, antigen separately
-- [ ] Add interactive installation mode (`--interactive` or `--component`)
 - [x] Add uninstall/revert script (`uninstall.sh`)
-- [ ] Add installation verification (`--verify` flag)
-- [ ] Handle shell change prompt after install
 - [x] Create `Makefile` for common operations
   - [x] `make install`
   - [x] `make uninstall`
@@ -46,9 +43,6 @@
 - [ ] Test uninstall/revert process
 
 ## Optional / Nice-to-Have
-- [ ] Add pre/post install hooks
-- [ ] Support for different "profiles" (work, personal, etc.)
-- [ ] Add backup rotation/cleanup
 - [x] CI/CD for testing on multiple environments
 - [x] Implement pre-commit hook framework for linting and parallel execution
   - [x] Create .pre-commit-config.yaml

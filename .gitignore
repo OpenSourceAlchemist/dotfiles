@@ -18,6 +18,24 @@ agy/settings.json
 agy/history.jsonl
 agy/*.db*
 
+# pi-coding-agent - Contains auth tokens, OAuth keys, and mutable runtime state
+pi/auth.json
+pi/mcp-oauth/
+pi/mcp-cache.json
+pi/mcp-onboarding.json
+pi/models-store.json
+pi/sessions/
+pi/npm/
+pi/bin/
+.pi/agent/auth.json
+.pi/agent/mcp-oauth/
+.pi/agent/mcp-cache.json
+.pi/agent/mcp-onboarding.json
+.pi/agent/models-store.json
+.pi/agent/sessions/
+.pi/agent/npm/
+.pi/agent/bin/
+
 # Personal/Local Configuration Overrides (user-specific)
 .dotfiles.local
 .dotfiles.override
