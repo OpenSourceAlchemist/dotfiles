@@ -118,6 +118,6 @@ fi
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
-[-f /usr/bin/keychain ] && eval `/usr/bin/keychain --eval`
+[ -f /usr/bin/keychain ] && eval "$(/usr/bin/keychain --eval)"
 
 [ -f /home/linuxbrew/.linuxbrew/bin/direnv ] && eval "$(direnv hook bash)"
