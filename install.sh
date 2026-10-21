@@ -103,6 +103,8 @@ declare -a FILES_TO_SYMLINK=(
     "zsh/dotzsh/env:.dotzsh/env"
     "zsh/dotzsh/kaliases:.dotzsh/kaliases"
     "agy/statusline.sh:.gemini/antigravity-cli/statusline.sh"
+    "agents/skills/skeptical-auditor/SKILL.md:.agents/skills/skeptical-auditor/SKILL.md"
+    "agents/rules/skeptical-auditor.md:.agents/rules/skeptical-auditor.md"
 )
 
 echo "Creating backup directory at $BACKUP_DIR"
