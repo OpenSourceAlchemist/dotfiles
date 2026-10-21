@@ -163,9 +163,9 @@ ensure_antigen() {
     log_info "Antigen not detected. Downloading to ~/.antigen/antigen.zsh..."
     mkdir -p "$HOME/.antigen"
     if command -v curl >/dev/null 2>&1; then
-        curl -fsSL "https://raw.githubusercontent.com/zsh-users/antigen/master/bin/antigen.zsh" -o "$HOME/.antigen/antigen.zsh" 2>/dev/null || true
+        curl -fsSL --connect-timeout 5 --max-time 15 "https://raw.githubusercontent.com/zsh-users/antigen/master/bin/antigen.zsh" -o "$HOME/.antigen/antigen.zsh" 2>/dev/null || true
     elif command -v wget >/dev/null 2>&1; then
-        wget -qO "$HOME/.antigen/antigen.zsh" "https://raw.githubusercontent.com/zsh-users/antigen/master/bin/antigen.zsh" 2>/dev/null || true
+        wget -q --timeout=15 --tries=1 -O "$HOME/.antigen/antigen.zsh" "https://raw.githubusercontent.com/zsh-users/antigen/master/bin/antigen.zsh" 2>/dev/null || true
     fi
 }
 
@@ -335,9 +335,9 @@ prompt_shell_change() {
     echo ""
     log_info "Current default login shell is '$current_shell'."
 
-    # Skip interactive prompt if not a TTY (CI, scripted, or non-interactive)
-    if [ ! -t 0 ]; then
-        log_info "Non-interactive environment detected. To switch to zsh later, run: chsh -s \$(which zsh)"
+    # Skip interactive prompt if not a TTY or in automated/CI environment
+    if [ ! -t 0 ] || [ -n "${CI:-}" ] || [ -n "${BATS_TEST_FILENAME:-}" ] || [ -n "${DEBIAN_FRONTEND:-}" ] || [ -n "${NONINTERACTIVE:-}" ]; then
+        log_info "Non-interactive or automated environment detected. To switch to zsh later, run: chsh -s \$(which zsh)"
         return 0
     fi
 

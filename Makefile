@@ -1,7 +1,7 @@
 # Dotfiles Development Makefile
 # Common operations for installation, uninstallation, and development
 
-.PHONY: help install uninstall verify backup clean-backups lint test setup dev-setup pre-commit-check help gitleaks secret-scan
+.PHONY: help install uninstall verify backup clean-backups lint test test-unit test-integration setup dev-setup pre-commit-check help gitleaks secret-scan
 
 # Default target
 .DEFAULT_GOAL := help
@@ -158,11 +158,29 @@ dev-setup setup:
 
 # --- Testing ---
 
-test: lint verify
+test: lint test-unit test-integration
 	@echo ""
-	@echo -e "${GREEN}All tests passed!${NC}"
-	@echo ""
-	@echo "Run individual checks:"
-	@echo "  make lint        # Run all linters"
-	@echo "  make verify      # Verify installation"
+	@echo -e "${GREEN}All test suites passed!${NC}"
+
+test-unit:
+	@echo -e "${BLUE}Running unit tests (bats)...${NC}"
+	@if command -v bats >/dev/null 2>&1; then \
+		bats tests/unit; \
+	elif [ -x "$$HOME/.local/bin/bats" ]; then \
+		"$$HOME/.local/bin/bats" tests/unit; \
+	else \
+		echo -e "${YELLOW}bats not found. Run ./dev-setup.sh --install or apt/brew install bats${NC}"; \
+		exit 1; \
+	fi
+
+test-integration:
+	@echo -e "${BLUE}Running integration tests (bats)...${NC}"
+	@if command -v bats >/dev/null 2>&1; then \
+		bats tests/integration; \
+	elif [ -x "$$HOME/.local/bin/bats" ]; then \
+		"$$HOME/.local/bin/bats" tests/integration; \
+	else \
+		echo -e "${YELLOW}bats not found. Run ./dev-setup.sh --install or apt/brew install bats${NC}"; \
+		exit 1; \
+	fi
 	@echo "  make shellcheck  # Check shell scripts"

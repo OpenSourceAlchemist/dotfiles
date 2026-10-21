@@ -39,8 +39,6 @@
 - [ ] Test on fresh Debian system
 - [ ] Test on fresh Alpine system
 - [ ] Test on fresh macOS system
-- [ ] Test shell switching (bash -> zsh)
-- [ ] Test uninstall/revert process
 
 ## Optional / Nice-to-Have
 - [x] CI/CD for testing on multiple environments

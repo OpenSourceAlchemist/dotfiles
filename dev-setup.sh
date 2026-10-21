@@ -385,6 +385,39 @@ install_yamllint() {
     fi
 }
 
+install_bats() {
+    log_info "Checking bats installation..."
+    if command_exists bats; then
+        log_success "bats is already installed"
+        return 0
+    fi
+
+    log_info "Installing bats-core..."
+    if command_exists brew; then
+        brew install bats-core 2>/dev/null || true
+    elif command_exists apt-get && command_exists sudo; then
+        sudo apt-get install -y bats 2>/dev/null || true
+    elif command_exists apk; then
+        apk add bats 2>/dev/null || true
+    fi
+
+    if ! command_exists bats; then
+        log_info "Installing bats from git repository..."
+        local tmp_dir
+        tmp_dir="$(mktemp -d)"
+        if git clone --depth 1 https://github.com/bats-core/bats-core.git "$tmp_dir" 2>/dev/null; then
+            "$tmp_dir/install.sh" "$HOME/.local" >/dev/null 2>&1 || true
+            rm -rf "$tmp_dir"
+        fi
+    fi
+
+    if command_exists bats; then
+        log_success "bats installed successfully"
+    else
+        log_warn "bats could not be installed automatically"
+    fi
+}
+
 # --- Setup Pre-Commit Hooks ---
 
 setup_pre_commit_hooks() {
@@ -455,6 +488,13 @@ verify_installation() {
         echo -e "  ${GREEN}✓${NC} gitleaks $(gitleaks version 2>&1 | head -1)"
     else
         echo -e "  ${YELLOW}✗${NC} gitleaks (OPTIONAL - secret detection disabled)"
+    fi
+
+    # Check bats
+    if command_exists bats; then
+        echo -e "  ${GREEN}✓${NC} bats $(bats --version | awk '{print $2}')"
+    else
+        echo -e "  ${YELLOW}✗${NC} bats (OPTIONAL - unit tests disabled)"
     fi
 
     # Check git hooks
@@ -575,6 +615,7 @@ main() {
             install_pip_packages
             install_yamllint
             install_markdownlint
+            install_bats
             setup_pre_commit_hooks
             ;;
         verify)

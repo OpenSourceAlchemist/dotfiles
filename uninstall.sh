@@ -13,41 +13,44 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
 # --- Helper Functions ---
 
-log_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
-
-log_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
-
-log_warn() {
-    echo -e "${YELLOW}[WARN]${NC} $1"
-}
-
-log_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
+log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
+log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
+log_warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
+log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 # --- Configuration ---
 
-# List of files/directories managed by this dotfiles repo
 MANAGED_FILES=(
     ".bashrc"
+    ".bash_profile"
+    ".profile"
     ".zshrc"
-    ".inputrc"
+    ".dotzsh/aliases"
+    ".dotzsh/env"
+    ".dotzsh/kaliases"
     ".vimrc"
     ".tmux.conf"
+    ".tmux.conf.goodies"
     ".gitconfig"
-    ".gitignore_global"
-    ".ssh/config"
+    ".gitconfig.local"
+    ".dotfiles.local"
     ".asdfrc"
+    ".tool-versions"
+    ".envrc"
     ".fzf.bash"
     ".fzf.zsh"
+    ".terraformrc"
+    ".Xdefaults"
+    ".ssh/config"
+    ".config/gh/config.yml"
+    ".config/gh/hosts.yml"
+    ".config/openbox/rc.xml"
+    ".gemini/antigravity-cli/statusline.sh"
+    ".agents/skills/skeptical-auditor/SKILL.md"
+    ".agents/rules/skeptical-auditor.md"
+    ".pi/agent/prompts/skeptical-audit.md"
 )
 
 BACKUP_PREFIX=~/.dotfiles_backup_
@@ -55,7 +58,8 @@ BACKUP_PREFIX=~/.dotfiles_backup_
 # --- Functions ---
 
 find_latest_backup() {
-    ls -t ${BACKUP_PREFIX}* 2>/dev/null | head -1
+    # Sort backups in reverse chronological order
+    find "$HOME" -maxdepth 1 -type d -name ".dotfiles_backup_*" 2>/dev/null | sort -r | head -1
 }
 
 remove_symlink() {
@@ -66,7 +70,7 @@ remove_symlink() {
         rm -f "$target"
         log_success "Removed symlink: ~/$file"
     elif [ -f "$target" ]; then
-        log_warn "Not a symlink: ~/$file (skipping)"
+        log_warn "Not a symlink: ~/$file (skipping to protect local file)"
     else
         log_info "Does not exist: ~/$file"
     fi
@@ -75,12 +79,15 @@ remove_symlink() {
 restore_backup() {
     local backup_dir="$1"
     local file="$2"
+    local src="$backup_dir/$file"
+    local dst="$HOME/$file"
 
-    if [ -f "$backup_dir/$file" ]; then
-        cp "$backup_dir/$file" "$HOME/$file"
+    if [ -e "$src" ] || [ -L "$src" ]; then
+        mkdir -p "$(dirname "$dst")"
+        cp -a "$src" "$dst"
         log_success "Restored: ~/$file from backup"
     else
-        log_warn "No backup found for: ~/$file"
+        log_info "No backup found for: ~/$file"
     fi
 }
 
@@ -99,7 +106,7 @@ Usage: $(basename "$0") [OPTIONS]
 Options:
     --restore         Restore backed-up files (if available)
     --skip-backup     Skip backup check, just remove symlinks
-    --force           Remove without confirmation
+    -f, --force       Remove without interactive confirmation
     -h, --help        Show this help message
 
 Example:
@@ -126,7 +133,7 @@ main() {
                 skip_backup_check=true
                 shift
                 ;;
-            --force)
+            -f|--force)
                 force=true
                 shift
                 ;;
@@ -144,29 +151,32 @@ main() {
 
     print_welcome
 
-    # Confirmation prompt
+    # Interactive confirmation prompt (skip if --force or non-interactive/CI)
     if [ "$force" = false ]; then
-        echo -e "${YELLOW}Warning:${NC} This will remove all symlinks created by the dotfiles installer."
-        echo "Your original files (if any) will be lost unless you have a backup."
-        echo ""
+        if [ ! -t 0 ] || [ -n "${CI:-}" ] || [ -n "${BATS_TEST_FILENAME:-}" ] || [ -n "${NONINTERACTIVE:-}" ]; then
+            log_info "Non-interactive environment detected, proceeding with uninstallation..."
+        else
+            echo -e "${YELLOW}Warning:${NC} This will remove all symlinks created by the dotfiles installer."
+            echo ""
 
-        # Check for backups
-        if [ "$skip_backup_check" = false ]; then
-            LATEST_BACKUP=$(find_latest_backup)
-            if [ -n "$LATEST_BACKUP" ]; then
-                log_info "Latest backup found: $LATEST_BACKUP"
-                echo "You can restore from this backup by running with --restore flag."
-                echo ""
-            else
-                log_warn "No backups found! Your original files will be lost."
-                echo ""
+            if [ "$skip_backup_check" = false ]; then
+                local latest
+                latest="$(find_latest_backup)"
+                if [ -n "$latest" ]; then
+                    log_info "Latest backup found: $latest"
+                    echo "You can restore from this backup by running with --restore flag."
+                    echo ""
+                else
+                    log_warn "No backups found."
+                    echo ""
+                fi
             fi
-        fi
 
-        read -p "Are you sure you want to continue? (y/N): " confirm
-        if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
-            echo "Aborted."
-            exit 0
+            read -r -p "Are you sure you want to continue? (y/N): " confirm
+            if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+                echo "Aborted."
+                exit 0
+            fi
         fi
     fi
 
@@ -176,64 +186,34 @@ main() {
 
     # Remove all managed symlinks
     for file in "${MANAGED_FILES[@]}"; do
-        # Skip SSH config.d includes as they may be user-created
-        if [[ "$file" =~ \.d/ ]]; then
-            log_info "Skipping (not managed): ~/$file"
-            continue
-        fi
         remove_symlink "$file"
     done
 
-    echo ""
-    log_info "Removing symlinked directories..."
-
-    # Handle vim directory if symlinked
-    if [ -L "$HOME/.vim" ]; then
-        rm -rf "$HOME/.vim"
-        log_success "Removed symlink: ~/.vim"
-    fi
-
-    # Handle config directories
-    for dir in ".config/gh" ".config/direnv"; do
-        target="$HOME/$dir"
-        if [ -L "$target" ]; then
-            rm -rf "$target"
-            log_success "Removed symlink: ~/$dir"
+    # Clean up empty parent directories if created by dotfiles
+    for dir in ".dotzsh" ".agents/skills/skeptical-auditor" ".agents/rules" ".pi/agent/prompts"; do
+        if [ -d "$HOME/$dir" ] && [ ! "$(ls -A "$HOME/$dir" 2>/dev/null)" ]; then
+            rmdir -p "$HOME/$dir" 2>/dev/null || true
         fi
     done
 
-    echo ""
-
     # Restore from backup if requested
     if [ "$restore_backup" = true ]; then
+        echo ""
         log_info "Restoring from backup..."
         echo ""
 
-        LATEST_BACKUP=$(find_latest_backup)
-        if [ -n "$LATEST_BACKUP" ] && [ -d "$LATEST_BACKUP" ]; then
-            # Create temp file to store backup path for restore
-            create_temp_backup_info() {
-                local backup_id="$LATEST_BACKUP"
-                echo "$backup_id" > /tmp/last_backup_info
-            }
-
-            create_temp_backup_info
-
-            for file in "${MANAGED_FILES[@]}"; do
-                restore_backup "$LATEST_BACKUP" "$file"
-            done
+        local latest_backup
+        latest_backup="$(find_latest_backup)"
+        if [ -n "$latest_backup" ] && [ -d "$latest_backup" ]; then
+            # Restore all files found in backup directory
+            while IFS= read -r rel_file; do
+                restore_backup "$latest_backup" "$rel_file"
+            done < <(cd "$latest_backup" && find . -type f 2>/dev/null | sed 's|^\./||')
 
             echo ""
-            log_success "Restored from backup: $LATEST_BACKUP"
-            log_info "If you want to restore more files manually:"
-            echo "  ls $LATEST_BACKUP"
-            echo "  cp $LATEST_BACKUP/<file> ~/..."
+            log_success "Restored from backup: $latest_backup"
         else
-            log_warn "No backup directory found at: $LATEST_BACKUP"
-            if [ "$skip_backup_check" = false ]; then
-                log_info "Available backups:"
-                ls -la ${BACKUP_PREFIX}* 2>/dev/null || echo "  No backups found"
-            fi
+            log_warn "No backup directory found matching $BACKUP_PREFIX*"
         fi
     fi
 
@@ -242,20 +222,6 @@ main() {
     log_success "Uninstallation complete!"
     echo -e "${GREEN}════════════════════════════════════════${NC}"
     echo ""
-
-    # Post-uninstallation notes
-    echo "What you should do next:"
-    echo "  1. If you removed symlinks to your shell config,"
-    echo "     you may need to start a new shell:"
-    echo "     exec zsh  # or exec bash"
-    echo ""
-    echo "  2. If you want to reinstall:"
-    echo "     ./install.sh"
-    echo ""
-    echo "  3. If you want to restore backups:"
-    echo "     ./uninstall.sh --restore"
-    echo ""
 }
 
-# Run main function
 main "$@"
