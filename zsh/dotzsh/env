@@ -26,7 +26,7 @@ fi
 
 
 count=4
-for prepath in /usr/local/bin .local/bin .local/service-mesh-bin .local/dotbin .local/srebin /home/linuxbrew/.linuxbrew/bin .rbenv/bin
+for prepath in /usr/local/bin .local/bin .local/service-mesh-bin .local/dotbin .local/srebin "${HOMEBREW_PREFIX:-/home/linuxbrew/.linuxbrew}/bin" .rbenv/bin
 do
     if [ "${prepath:0:1}" != "/" ]
     then
@@ -66,4 +66,4 @@ export SVDIR="$HOME/service"
 export INPUTRC=~/.inputrc
 
 export EDITOR=vim
-export MAILNAME=kevin@opensourcealchemist.com
+export MAILNAME="${MAILNAME:-kevin@opensourcealchemist.com}"

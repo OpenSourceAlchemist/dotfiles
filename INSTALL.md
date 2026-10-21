@@ -428,18 +428,24 @@ sudo -E ./bootstrap.sh
 
 ### Creating User Overrides
 
-Create a `.dotfiles.local` file for personal settings:
+Copy the example template and create a `~/.dotfiles.local` file for personal settings (automatically sourced by `~/.bashrc`, `~/.zshrc`, and `~/.profile`):
 
 ```bash
-# Example: ~/.dotfiles.local
+# Copy template from dotfiles repository
+cp dotfiles.local.example ~/.dotfiles.local
+```
+
+Example contents of `~/.dotfiles.local`:
+```bash
 export EMAIL="your@email.com"
 export GITOPS_TOOLS="/different/path"
 ```
 
-Then source it from your main config:
-```bash
-# In ~/.zshrc (add at the end)
-[ -f ~/.dotfiles.local ] && source ~/.dotfiles.local
+Git user identity can also be configured locally via `~/.gitconfig.local`:
+```ini
+[user]
+    name = Your Name
+    email = your@email.com
 ```
 
 ### Machine-Specific Configurations

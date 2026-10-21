@@ -75,6 +75,33 @@ if [ "$HAS_WARNING" -eq 1 ]; then
 fi
 # --- End Dependency Checking ---
 
+# Ensure antigen is installed for zsh
+ensure_antigen() {
+    local antigen_paths=(
+        "${ANTIGEN_PATH:-}"
+        "$HOME/.antigen/antigen.zsh"
+        "$HOME/.local/share/antigen/antigen.zsh"
+        "$HOME/.zsh/antigen/zsh-antigen/antigen.zsh"
+        "/usr/share/zsh-antigen/antigen.zsh"
+        "/usr/local/share/zsh-antigen/antigen.zsh"
+        "${HOMEBREW_PREFIX:-}/share/antigen/antigen.zsh"
+    )
+    for p in "${antigen_paths[@]}"; do
+        if [ -n "$p" ] && [ -f "$p" ]; then
+            return 0
+        fi
+    done
+
+    echo "Antigen not detected. Downloading to ~/.antigen/antigen.zsh..."
+    mkdir -p "$HOME/.antigen"
+    if command -v curl >/dev/null 2>&1; then
+        curl -fsSL "https://raw.githubusercontent.com/zsh-users/antigen/master/bin/antigen.zsh" -o "$HOME/.antigen/antigen.zsh" 2>/dev/null || true
+    elif command -v wget >/dev/null 2>&1; then
+        wget -qO "$HOME/.antigen/antigen.zsh" "https://raw.githubusercontent.com/zsh-users/antigen/master/bin/antigen.zsh" 2>/dev/null || true
+    fi
+}
+ensure_antigen
+
 
 # List of files/directories to symlink
 # The format is "repo_path:home_path"

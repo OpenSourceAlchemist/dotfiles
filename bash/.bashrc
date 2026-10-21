@@ -116,8 +116,18 @@ if ! shopt -oq posix; then
   fi
 fi
 
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+[ -f "$HOME/.fzf.bash" ] && source "$HOME/.fzf.bash"
 
-[ -f /usr/bin/keychain ] && eval "$(/usr/bin/keychain --eval)"
+if command -v keychain >/dev/null 2>&1; then
+    eval "$(keychain --eval --quiet 2>/dev/null)"
+fi
 
-[ -f /home/linuxbrew/.linuxbrew/bin/direnv ] && eval "$(direnv hook bash)"
+if command -v direnv >/dev/null 2>&1; then
+    eval "$(direnv hook bash)"
+fi
+
+# Load machine-specific local overrides
+if [ -f "$HOME/.dotfiles.local" ]; then
+    # shellcheck source=/dev/null
+    source "$HOME/.dotfiles.local"
+fi

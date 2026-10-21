@@ -23,16 +23,9 @@
   - [x] `make backup`
 
 ## Configuration Improvements
-- [ ] Replace hardcoded paths with variables
-  - [ ] `/home/linuxbrew/.linuxbrew`
-  - [ ] `/usr/share/zsh-antigen/antigen.zsh`
-  - [ ] `kevin@opensourcealchemist.com`
-  - [ ] Internal paths (`~/src/internal/*`)
-- [ ] Create `.dotfiles.local` override file mechanism
 - [x] Fix missing `ssh/config.d/` directory (create or remove reference)
 - [x] Handle mise installation in `bootstrap.sh` (currently skips)
 - [x] Add macOS/Homebrew support to installer
-- [ ] Auto-install antigen in user's home directory
 - [x] Migrate from Terraform to OpenTofu (open-source fork)
   - [x] Update `bootstrap.sh` to install `tofu` instead of `terraform`
   - [x] Keep `.terraformrc` filename for OpenTofu compatibility

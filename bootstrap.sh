@@ -551,38 +551,67 @@ install_zsh_antigen() {
 
     # Common locations where antigen might be installed
     local antigen_paths=(
+        "${ANTIGEN_PATH:-}"
+        "$HOME/.antigen/antigen.zsh"
+        "$HOME/.local/share/antigen/antigen.zsh"
+        "$HOME/.zsh/antigen/zsh-antigen/antigen.zsh"
         "/usr/share/zsh-antigen/antigen.zsh"
         "/usr/local/share/zsh-antigen/antigen.zsh"
-        "$HOME/.zsh/antigen/zsh-antigen/antigen.zsh"
+        "${HOMEBREW_PREFIX:-}/share/antigen/antigen.zsh"
     )
 
     for path in "${antigen_paths[@]}"; do
-        if [ -f "$path" ]; then
+        if [ -n "$path" ] && [ -f "$path" ]; then
             log_success "antigen is already installed at $path"
             return 0
         fi
     done
 
-    log_info "Installing antigen to ~/.zsh/antigen..."
-    mkdir -p "$HOME/.zsh"
-
+    # Try system package managers first
     if command_exists brew; then
-        brew install antigen
+        if brew install antigen; then
+            log_success "antigen installed via Homebrew"
+            return 0
+        fi
+        log_warn "brew install antigen failed, attempting user-space install..."
     elif command_exists apt-get; then
-        sudo apt-get install -y zsh-antigen
-    elif command_exists apk; then
-        # Alpine doesn't have antigen in repos, install via git
-        git clone --depth 1 https://github.com/zsh-users/antigen "$HOME/.zsh/antigen/zsh-antigen"
-        log_success "antigen installed to ~/.zsh/antigen"
-        return 0
-    elif command_exists git; then
-        git clone --depth 1 https://github.com/zsh-users/antigen "$HOME/.zsh/antigen/zsh-antigen"
-    else
-        log_warn "Please install antigen manually: git clone --depth 1 https://github.com/zsh-users/antigen ~/.zsh/antigen/zsh-antigen"
-        return 1
+        if command_exists sudo; then
+            if sudo apt-get install -y zsh-antigen 2>/dev/null; then
+                log_success "antigen installed via apt"
+                return 0
+            fi
+        else
+            if apt-get install -y zsh-antigen 2>/dev/null; then
+                log_success "antigen installed via apt"
+                return 0
+            fi
+        fi
+        log_warn "apt install zsh-antigen failed, attempting user-space install..."
     fi
 
-    log_success "antigen installation complete"
+    # Fallback to user-home installation (~/.antigen/antigen.zsh)
+    log_info "Installing antigen to user home directory (~/.antigen/antigen.zsh)..."
+    mkdir -p "$HOME/.antigen"
+
+    if command_exists curl; then
+        if curl -fsSL "https://raw.githubusercontent.com/zsh-users/antigen/master/bin/antigen.zsh" -o "$HOME/.antigen/antigen.zsh"; then
+            log_success "antigen installed to ~/.antigen/antigen.zsh"
+            return 0
+        fi
+    elif command_exists wget; then
+        if wget -qO "$HOME/.antigen/antigen.zsh" "https://raw.githubusercontent.com/zsh-users/antigen/master/bin/antigen.zsh"; then
+            log_success "antigen installed to ~/.antigen/antigen.zsh"
+            return 0
+        fi
+    elif command_exists git; then
+        if git clone --depth 1 "https://github.com/zsh-users/antigen" "$HOME/.zsh/antigen/zsh-antigen"; then
+            log_success "antigen installed to ~/.zsh/antigen"
+            return 0
+        fi
+    fi
+
+    log_warn "Could not auto-install antigen. Please install antigen manually."
+    return 0
 }
 
 # --- Main Script ---

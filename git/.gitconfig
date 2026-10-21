@@ -1,3 +1,7 @@
 [user]
-	email = kevin@opensourcealchemist.com
 	name = Kevin Berry
+	email = kevin@opensourcealchemist.com
+
+# Local user overrides (e.g. personal vs work email, signing key)
+[include]
+	path = ~/.gitconfig.local
