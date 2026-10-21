@@ -27,6 +27,9 @@ This is a **cross-platform dotfiles management repository** that:
 
 ```
 .
+├── agents/            # Universal Agent Skills and modular rules (cross-agent)
+│   ├── rules/         # Modular rules (skeptical-auditor.md)
+│   └── skills/        # Agent Skills standard (skeptical-auditor/SKILL.md)
 ├── agy/               # Antigravity CLI configuration (statusline.sh)
 ├── bash/              # Bash configuration (.bashrc, .bash_profile)
 ├── dotconfig/         # Application configs (not in root)
@@ -73,6 +76,8 @@ The `install.sh` script creates symlinks according to this mapping:
 | `dotconfig/gh/config.yml` | `~/.config/gh/config.yml` |
 | `dotconfig/gh/hosts.yml` | `~/.config/gh/hosts.yml` |
 | `agy/statusline.sh` | `~/.gemini/antigravity-cli/statusline.sh` |
+| `agents/skills/skeptical-auditor/SKILL.md` | `~/.agents/skills/skeptical-auditor/SKILL.md` |
+| `agents/rules/skeptical-auditor.md` | `~/.agents/rules/skeptical-auditor.md` |
 
 ## Key Scripts
 
