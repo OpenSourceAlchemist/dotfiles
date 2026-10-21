@@ -233,10 +233,11 @@ make lint
 
 ### Validation & Automation
 
-GitLab CI has been retired in favor of local git pre-commit hooks and Makefile targets:
-- `make lint` runs shellcheck, markdownlint, and gitleaks secret scanning.
-- `make secret-scan` runs gitleaks across the workspace.
-- Pre-commit runs all checks prior to commits and blocks accidental secret additions.
+Validation and security enforcement are handled at multiple layers:
+- **Local Pre-Commit**: Pre-commit runs `shellcheck`, `bash -n`, `markdownlint`, `detect-private-key`, and `gitleaks` prior to commits.
+- **Makefile Automation**: `make lint` executes linting and secret scanning; `make secret-scan` scans the repository with `gitleaks`.
+- **GitHub Secret Scanning & Push Protection**: Enabled on the GitHub repository to block pushes containing credentials at the transport level.
+- **GitHub Actions CI Backstop**: `.github/workflows/ci.yml` runs automated secret scanning (`gitleaks-action`) and pre-commit lint validation on all pull requests and pushes to `main`.
 
 ## File Locations for Reference
 
