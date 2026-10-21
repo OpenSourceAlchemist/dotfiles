@@ -16,32 +16,38 @@ if command -v jq >/dev/null 2>&1; then
   context_limit=$(echo "$input" | jq -r '.context_window.context_window_size // .context_window.limit // empty')
 
   # 4. Token Quota & Rate Limits
-  model_lower=$(echo "$model" | tr '[:upper:]' '[:lower:]')
-  if [[ "$model_lower" =~ gemini ]] || [[ "$model_lower" =~ google ]]; then
-    prefix="gemini"
-  else
-    prefix="3p"
-  fi
-
-  five_hour_pct=$(echo "$input" | jq -r --arg pref "$prefix" '
-    (.quota[$pref + "-5h"].remaining_fraction // .quota[(if $pref == "gemini" then "3p" else "gemini" end) + "-5h"].remaining_fraction // empty) as $rem
+  gemini_5h_pct=$(echo "$input" | jq -r '
+    (.quota["gemini-5h"].remaining_fraction // empty) as $rem
     | if $rem != null and $rem != "" then (1 - ($rem | tonumber)) * 100 else empty end
   ')
 
-  seven_day_pct=$(echo "$input" | jq -r --arg pref "$prefix" '
-    (.quota[$pref + "-weekly"].remaining_fraction // .quota[(if $pref == "gemini" then "3p" else "gemini" end) + "-weekly"].remaining_fraction // empty) as $rem
+  gemini_7d_pct=$(echo "$input" | jq -r '
+    (.quota["gemini-weekly"].remaining_fraction // empty) as $rem
+    | if $rem != null and $rem != "" then (1 - ($rem | tonumber)) * 100 else empty end
+  ')
+
+  claude_5h_pct=$(echo "$input" | jq -r '
+    (.quota["3p-5h"].remaining_fraction // .quota["claude-5h"].remaining_fraction // .quota["3p-claude-5h"].remaining_fraction // empty) as $rem
+    | if $rem != null and $rem != "" then (1 - ($rem | tonumber)) * 100 else empty end
+  ')
+
+  claude_7d_pct=$(echo "$input" | jq -r '
+    (.quota["3p-weekly"].remaining_fraction // .quota["claude-weekly"].remaining_fraction // .quota["3p-claude-weekly"].remaining_fraction // empty) as $rem
     | if $rem != null and $rem != "" then (1 - ($rem | tonumber)) * 100 else empty end
   ')
 
   extra_quotas=$(echo "$input" | jq -r '
     .quota // {} | to_entries
     | map(
-        select(.key | test("^(gemini|3p)-(5h|weekly)$") | not)
+        select(.key | test("^(gemini|3p|claude|3p-claude)-(5h|weekly)$") | not)
         | select(.value.remaining_fraction != null and .value.remaining_fraction != "")
         | (
             if (.key | test("argon|pro")) then "Pro"
             elif (.key | test("wtu")) then "WTU"
-            else (.key | sub("^(gemini|3p)-"; "") | sub("-(weekly|5h)$"; ""))
+            elif (.key | test("opus")) then "Claude-Opus"
+            elif (.key | test("sonnet")) then "Claude-Sonnet"
+            elif (.key | test("claude")) then "Claude"
+            else (.key | sub("^(gemini|3p|claude)-"; "") | sub("-(weekly|5h)$"; ""))
             end
           ) as $name
         | {name: $name, pct: ((1 - (.value.remaining_fraction | tonumber)) * 100)}
@@ -68,23 +74,29 @@ in_tok = cw.get("total_input_tokens") or 0
 out_tok = cw.get("total_output_tokens") or 0
 context_tokens = in_tok + out_tok
 context_limit = cw.get("context_window_size") or cw.get("limit") or ""
-ml = model.lower()
-pref = "gemini" if ("gemini" in ml or "google" in ml) else "3p"
-alt = "3p" if pref == "gemini" else "gemini"
 q = d.get("quota") or {}
-def calc_pct(suffix):
-    v = (q.get(pref + suffix) or {}).get("remaining_fraction")
-    if v is None or v == "":
-        v = (q.get(alt + suffix) or {}).get("remaining_fraction")
-    if v is not None and v != "":
-        try:
-            return str((1.0 - float(v)) * 100.0)
-        except Exception:
-            pass
+
+def get_rem_pct(keys):
+    for k in keys:
+        v = (q.get(k) or {}).get("remaining_fraction")
+        if v is not None and v != "":
+            try:
+                return str((1.0 - float(v)) * 100.0)
+            except Exception:
+                pass
     return ""
-five_hour_pct = calc_pct("-5h")
-seven_day_pct = calc_pct("-weekly")
-base_keys = {"gemini-5h", "3p-5h", "gemini-weekly", "3p-weekly"}
+
+gemini_5h_pct = get_rem_pct(["gemini-5h"])
+gemini_7d_pct = get_rem_pct(["gemini-weekly"])
+claude_5h_pct = get_rem_pct(["3p-5h", "claude-5h", "3p-claude-5h"])
+claude_7d_pct = get_rem_pct(["3p-weekly", "claude-weekly", "3p-claude-weekly"])
+
+base_keys = {
+    "gemini-5h", "gemini-weekly",
+    "3p-5h", "3p-weekly",
+    "claude-5h", "claude-weekly",
+    "3p-claude-5h", "3p-claude-weekly"
+}
 extra_dict = {}
 for k, v in q.items():
     if k in base_keys or not isinstance(v, dict):
@@ -98,9 +110,15 @@ for k, v in q.items():
                 name = "Pro"
             elif "wtu" in k_lower:
                 name = "WTU"
+            elif "opus" in k_lower:
+                name = "Claude-Opus"
+            elif "sonnet" in k_lower:
+                name = "Claude-Sonnet"
+            elif "claude" in k_lower:
+                name = "Claude"
             else:
                 name = k
-                for p in ["gemini-", "3p-"]:
+                for p in ["gemini-", "3p-", "claude-"]:
                     if name.startswith(p):
                         name = name[len(p):]
                 for s in ["-weekly", "-5h"]:
@@ -121,8 +139,10 @@ for k, v in [
     ("context_pct", str(context_pct)),
     ("context_tokens", str(context_tokens)),
     ("context_limit", str(context_limit)),
-    ("five_hour_pct", str(five_hour_pct)),
-    ("seven_day_pct", str(seven_day_pct)),
+    ("gemini_5h_pct", str(gemini_5h_pct)),
+    ("gemini_7d_pct", str(gemini_7d_pct)),
+    ("claude_5h_pct", str(claude_5h_pct)),
+    ("claude_7d_pct", str(claude_7d_pct)),
     ("extra_quotas", str(extra_quotas)),
     ("general_quota", str(general_quota)),
 ]:
@@ -193,48 +213,44 @@ fi
 
 quota_info=""
 
-if [ -n "$five_hour_pct" ] && [ "$five_hour_pct" != "null" ] && [ "$five_hour_pct" != "" ]; then
-  five_hour_pct_int=$(printf "%.0f" "$five_hour_pct" 2>/dev/null || echo 0)
-  if [ "$five_hour_pct_int" -lt 50 ]; then
-    color_5h="\033[32m"
-  elif [ "$five_hour_pct_int" -lt 80 ]; then
-    color_5h="\033[33m"
-  else
-    color_5h="\033[31m"
+format_quota_item() {
+  local label="$1"
+  local val="$2"
+  if [ -n "$val" ] && [ "$val" != "null" ] && [ "$val" != "" ]; then
+    local val_int
+    val_int=$(printf "%.0f" "$val" 2>/dev/null || echo 0)
+    local color
+    if [ "$val_int" -lt 50 ]; then
+      color="\033[32m"
+    elif [ "$val_int" -lt 80 ]; then
+      color="\033[33m"
+    else
+      color="\033[31m"
+    fi
+    if [ -n "$quota_info" ]; then
+      quota_info="${quota_info} | "
+    fi
+    quota_info="${quota_info}${label}: ${color}${val_int}%\033[0m"
   fi
-  quota_info="${quota_info}5h: ${color_5h}${five_hour_pct_int}%\033[0m"
-fi
+}
 
-if [ -n "$seven_day_pct" ] && [ "$seven_day_pct" != "null" ] && [ "$seven_day_pct" != "" ]; then
-  seven_day_pct_int=$(printf "%.0f" "$seven_day_pct" 2>/dev/null || echo 0)
-  if [ "$seven_day_pct_int" -lt 50 ]; then
-    color_7d="\033[32m"
-  elif [ "$seven_day_pct_int" -lt 80 ]; then
-    color_7d="\033[33m"
-  else
-    color_7d="\033[31m"
-  fi
-  if [ -n "$quota_info" ]; then
-    quota_info="${quota_info} | "
-  fi
-  quota_info="${quota_info}7d: ${color_7d}${seven_day_pct_int}%\033[0m"
+model_lower=$(echo "$model" | tr '[:upper:]' '[:lower:]')
+if [[ "$model_lower" =~ claude ]] || [[ "$model_lower" =~ anthropic ]]; then
+  format_quota_item "Claude 5h" "$claude_5h_pct"
+  format_quota_item "Claude 7d" "$claude_7d_pct"
+  format_quota_item "Gemini 5h" "$gemini_5h_pct"
+  format_quota_item "Gemini 7d" "$gemini_7d_pct"
+else
+  format_quota_item "5h" "$gemini_5h_pct"
+  format_quota_item "7d" "$gemini_7d_pct"
+  format_quota_item "Claude 5h" "$claude_5h_pct"
+  format_quota_item "Claude 7d" "$claude_7d_pct"
 fi
 
 if [ -n "$extra_quotas" ]; then
   while IFS=':' read -r eq_name eq_pct; do
     [ -z "$eq_name" ] || [ -z "$eq_pct" ] && continue
-    eq_pct_int=$(printf "%.0f" "$eq_pct" 2>/dev/null || echo 0)
-    if [ "$eq_pct_int" -lt 50 ]; then
-      color_eq="\033[32m"
-    elif [ "$eq_pct_int" -lt 80 ]; then
-      color_eq="\033[33m"
-    else
-      color_eq="\033[31m"
-    fi
-    if [ -n "$quota_info" ]; then
-      quota_info="${quota_info} | "
-    fi
-    quota_info="${quota_info}${eq_name}: ${color_eq}${eq_pct_int}%\033[0m"
+    format_quota_item "$eq_name" "$eq_pct"
   done <<< "$extra_quotas"
 fi
 
