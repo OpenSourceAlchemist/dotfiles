@@ -180,9 +180,10 @@ make dev-setup
 
 ### Making Changes
 
-1. **Make Changes**: Edit dotfiles or scripts
-2. **Test Locally**: Use a clean VM/container if possible
-3. **Validate**: Run pre-commit checks
+1. **Branch First**: Always create a dedicated branch (e.g., `feat/...`, `fix/...`, `docs/...`) from `main`. Never push directly to `main`.
+2. **Make Changes**: Edit dotfiles, scripts, or documentation.
+3. **Test Locally**: Run test suites (`bats tests/unit tests/integration`) and verify on clean environments when possible.
+4. **Validate**: Run pre-commit checks and linting before committing:
    ```bash
    # On staged files (before commit)
    pre-commit run
@@ -191,8 +192,8 @@ make dev-setup
    make lint
    pre-commit run --all-files
    ```
-4. **Document**: Update relevant docs if behavior changes
-5. **Test Integration**: Run `bootstrap.sh` then `install.sh` on clean system
+5. **Document**: Update relevant documentation if behavior or configuration changes.
+6. **Create Pull Request**: Push the branch to remote and open a Pull Request (`gh pr create`) for review to ensure secondary validation via GitHub Actions CI checks prior to merging.
 
 ### Pre-Commit Hooks
 
