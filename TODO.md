@@ -36,9 +36,7 @@
 - [x] Update README with installation badges/status
 
 ## Testing
-- [ ] Test on fresh Debian system
-- [ ] Test on fresh Alpine system
-- [ ] Test on fresh macOS system
+- [ ] Test on fresh macOS system (pending macOS hardware access)
 
 ## Optional / Nice-to-Have
 - [x] CI/CD for testing on multiple environments

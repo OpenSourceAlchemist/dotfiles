@@ -195,7 +195,7 @@ install_debian_dependencies() {
     local missing=()
     local deps=(
         "zsh:zsh"
-        "vim:vim-nox:vim"
+        "vim-nox:vim"
         "tmux:tmux"
         "git:git"
         "rsync:rsync"
@@ -209,14 +209,15 @@ install_debian_dependencies() {
     )
 
     for dep in "${deps[@]}"; do
-        IFS=':' read -r target primary alt <<< "$dep"
+        IFS=':' read -r pkg cmd alt_cmd <<< "$dep"
+        [ -z "$cmd" ] && cmd="$pkg"
 
         # Check if already installed
-        if command_exists "$primary" || ( [ -n "$alt" ] && command_exists "$alt" ); then
-            echo -e "  ${GREEN}✓${NC} $target ($primary) is already installed"
+        if command_exists "$cmd" || ( [ -n "$alt_cmd" ] && command_exists "$alt_cmd" ); then
+            echo -e "  ${GREEN}✓${NC} $pkg ($cmd) is already installed"
         else
-            echo "  Marking $target for installation..."
-            missing+=("$primary")
+            echo "  Marking $pkg for installation..."
+            missing+=("$pkg")
         fi
     done
 

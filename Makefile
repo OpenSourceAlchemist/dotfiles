@@ -1,7 +1,7 @@
 # Dotfiles Development Makefile
 # Common operations for installation, uninstallation, and development
 
-.PHONY: help install uninstall verify backup clean-backups lint test test-unit test-integration setup dev-setup pre-commit-check help gitleaks secret-scan
+.PHONY: help install uninstall verify backup clean-backups lint test test-unit test-integration test-debian test-alpine test-e2e setup dev-setup pre-commit-check help gitleaks secret-scan
 
 # Default target
 .DEFAULT_GOAL := help
@@ -183,4 +183,14 @@ test-integration:
 		echo -e "${YELLOW}bats not found. Run ./dev-setup.sh --install or apt/brew install bats${NC}"; \
 		exit 1; \
 	fi
+
+test-debian:
+	@echo -e "${BLUE}Running Debian 13 (Trixie) E2E container test...${NC}"
+	@./scripts/test-e2e-debian.sh
+
+test-alpine:
+	@echo -e "${BLUE}Running Alpine Linux E2E container test...${NC}"
+	@./scripts/test-e2e-alpine.sh
+
+test-e2e: test-debian test-alpine
 	@echo "  make shellcheck  # Check shell scripts"
