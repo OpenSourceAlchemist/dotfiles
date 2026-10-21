@@ -22,7 +22,7 @@ NC='\033[0m' # No Color
 
 # Component definitions
 declare -A COMPONENT_FILES
-COMPONENT_FILES[shell]="bash/.bashrc bash/.bash_profile shell/.profile zsh/.zshrc zsh/dotzsh/aliases:.dotzsh/aliases zsh/dotzsh/env:.dotzsh/env zsh/dotzsh/kaliases:.dotzsh/kaliases"
+COMPONENT_FILES[shell]="bash/.bashrc bash/.bash_profile shell/.profile zsh/.zshrc zsh/.amrc:.amrc zsh/dotzsh/aliases:.dotzsh/aliases zsh/dotzsh/env:.dotzsh/env zsh/dotzsh/kaliases:.dotzsh/kaliases"
 COMPONENT_FILES[editor]="vim/.vimrc"
 COMPONENT_FILES[multiplexer]="tmux/.tmux.conf tmux/.tmux.conf.goodies"
 COMPONENT_FILES[git]="git/.gitconfig"

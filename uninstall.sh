@@ -27,6 +27,7 @@ MANAGED_FILES=(
     ".bash_profile"
     ".profile"
     ".zshrc"
+    ".amrc"
     ".dotzsh/aliases"
     ".dotzsh/env"
     ".dotzsh/kaliases"

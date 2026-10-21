@@ -64,6 +64,7 @@ The `install.sh` script creates symlinks according to this mapping:
 | `bash/.bash_profile` | `~/.bash_profile` |
 | `shell/.profile` | `~/.profile` |
 | `zsh/.zshrc` | `~/.zshrc` |
+| `zsh/.amrc` | `~/.amrc` |
 | `zsh/dotzsh/aliases` | `~/.dotzsh/aliases` |
 | `zsh/dotzsh/env` | `~/.dotzsh/env` |
 | `tmux/.tmux.conf` | `~/.tmux.conf` |

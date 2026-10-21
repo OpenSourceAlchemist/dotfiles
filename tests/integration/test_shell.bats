@@ -55,3 +55,29 @@ teardown() {
         skip "zsh not installed"
     fi
 }
+
+@test "kaliases loads cleanly without glob error when kube conf.d is missing or empty" {
+    run "$REPO_DIR/install.sh" --component shell
+    [ "$status" -eq 0 ]
+
+    if command -v zsh >/dev/null 2>&1; then
+        run zsh -f -c "HOME='$HOME'; source '$HOME/.dotzsh/kaliases'"
+        [ "$status" -eq 0 ]
+        [[ ! "$output" =~ "no matches found" ]]
+    else
+        skip "zsh not installed"
+    fi
+}
+
+@test "alien-minimal left prompt excludes start tag underscore prefix" {
+    run "$REPO_DIR/install.sh" --component shell
+    [ "$status" -eq 0 ]
+
+    if command -v zsh >/dev/null 2>&1; then
+        run zsh -f -c "HOME='$HOME'; source '$HOME/.amrc'; echo \"\${AM_LEFT_SECTION[*]}\""
+        [ "$status" -eq 0 ]
+        [[ ! "$output" =~ "am_prompt_start_tag" ]]
+    else
+        skip "zsh not installed"
+    fi
+}

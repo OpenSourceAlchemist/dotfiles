@@ -23,12 +23,20 @@ alias hl="helm list"
 alias -g OY="-o yaml"
 alias -g OW="-o wide"
 alias -g ON="-o name"
-source <(kubectl completion zsh)
-source <(helm completion zsh)
 
-KUBECONFIG=~/.kube/config
-for conf in ~/.kube/conf.d/*.yaml
-do
-    KUBECONFIG=$KUBECONFIG:"$conf"
-done
+if type compdef >/dev/null 2>&1; then
+    if command -v kubectl >/dev/null 2>&1; then
+        source <(kubectl completion zsh)
+    fi
+    if command -v helm >/dev/null 2>&1; then
+        source <(helm completion zsh)
+    fi
+fi
+
+KUBECONFIG="$HOME/.kube/config"
+if [ -d "$HOME/.kube/conf.d" ]; then
+    for conf in "$HOME"/.kube/conf.d/*.yaml(N) "$HOME"/.kube/conf.d/*.yml(N); do
+        [ -f "$conf" ] && KUBECONFIG="$KUBECONFIG:$conf"
+    done
+fi
 export KUBECONFIG
