@@ -450,6 +450,13 @@ verify_installation() {
         echo -e "  ${YELLOW}✗${NC} markdownlint (OPTIONAL - some checks may fail)"
     fi
 
+    # Check gitleaks
+    if command_exists gitleaks; then
+        echo -e "  ${GREEN}✓${NC} gitleaks $(gitleaks version 2>&1 | head -1)"
+    else
+        echo -e "  ${YELLOW}✗${NC} gitleaks (OPTIONAL - secret detection disabled)"
+    fi
+
     # Check git hooks
     if [ -f .git/hooks/pre-commit ]; then
         echo -e "  ${GREEN}✓${NC} pre-commit hooks configured"

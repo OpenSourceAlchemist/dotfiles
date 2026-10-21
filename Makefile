@@ -1,7 +1,7 @@
 # Dotfiles Development Makefile
 # Common operations for installation, uninstallation, and development
 
-.PHONY: help install uninstall verify backup lint test setup dev-setup pre-commit-check help
+.PHONY: help install uninstall verify backup lint test setup dev-setup pre-commit-check help gitleaks secret-scan
 
 # Default target
 .DEFAULT_GOAL := help
@@ -30,9 +30,10 @@ help:
 	@echo "  uninstall      : Remove symlinks (restore from backup if available)"
 	@echo "  verify         : Verify symlinks are correctly configured"
 	@echo "  backup         : Create a backup of existing dotfiles"
-	@echo "  lint           : Run all linters (shellcheck, markdownlint)"
+	@echo "  lint           : Run all linters (shellcheck, markdownlint, gitleaks)"
 	@echo "  shellcheck     : Run shellcheck on all shell scripts"
 	@echo "  markdownlint   : Run markdownlint on all markdown files"
+	@echo "  secret-scan    : Run gitleaks secret detection"
 	@echo "  pre-commit-check : Run pre-commit hooks manually"
 	@echo ""
 	@echo "Development Setup:"
@@ -128,9 +129,15 @@ backup:
 
 # --- Linting ---
 
-lint: shellcheck markdownlint
+lint: shellcheck markdownlint gitleaks
 	@echo ""
 	@echo -e "${GREEN}All linting checks passed!${NC}"
+
+gitleaks:
+	@echo -e "${BLUE}Running gitleaks secret scan...${NC}"
+	@./scripts/run-gitleaks.sh --all
+
+secret-scan: gitleaks
 
 shellcheck:
 	@echo -e "${BLUE}Running shellcheck...${NC}"

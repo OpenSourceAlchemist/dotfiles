@@ -21,7 +21,7 @@ This is a **cross-platform dotfiles management repository** that:
 | `README.md` | Repository overview |
 | `AGENTS.md` | Agent development guidelines (this file) |
 | `.gitignore` | Sensitive file protection |
-| `~/.gitlab-ci.yml` | CI/CD pipeline configuration |
+| `Makefile` | Build, lint, and workflow automation |
 
 ## Directory Structure
 
@@ -199,10 +199,11 @@ This repository uses the `pre-commit` framework for automated validation:
 | shellcheck | Bash/Zsh linting | *.sh, bootstrap.sh, install.sh, .fzf.* |
 | bash-syntax | Syntax validation (bash -n) | *.sh |
 | markdownlint | Markdown formatting | *.md |
-| yamllint | YAML validation | .gitlab-ci.yml |
-| detect-private-key | Find private keys | .ssh/* |
+| detect-private-key | Find private keys | .ssh/*, ssh/* |
+| gitleaks | Secret and credential scanning | all files |
 | trailing-whitespace | Remove trailing spaces | all text files |
 | end-of-file-fixer | Ensure newline at EOF | all text files |
+| check-exec-permissions | Verify script permissions | bootstrap.sh, install.sh |
 
 ### ShellCheck Configuration
 
@@ -228,14 +229,14 @@ make lint
 
 - `scripts/run-shellcheck-parallel.sh` - Run shellcheck on all scripts in parallel
 - `scripts/run-precommit.sh` - Simple pre-commit runner wrapper
+- `scripts/run-gitleaks.sh` - Run gitleaks secret detection
 
-### CI/CD Integration
+### Validation & Automation
 
-The `.gitlab-ci.yml` runs `pre-commit run --all-files` on:
-- Merge requests
-- main branch commits
-
-This replaces the previous individual validation jobs (shellcheck, bash_syntax, markdown_lint, validate_yaml).
+GitLab CI has been retired in favor of local git pre-commit hooks and Makefile targets:
+- `make lint` runs shellcheck, markdownlint, and gitleaks secret scanning.
+- `make secret-scan` runs gitleaks across the workspace.
+- Pre-commit runs all checks prior to commits and blocks accidental secret additions.
 
 ## File Locations for Reference
 
@@ -250,11 +251,10 @@ This replaces the previous individual validation jobs (shellcheck, bash_syntax, 
 | **Graphics** | `~/.Xdefaults` |
 | **Applications** | `~/.config/gh/*`, `~/.terraformrc` (OpenTofu) |
 
-## CI/CD Context
+## Security Context
 
-- GitLab CI pipeline configured in root
-- Tests run on multiple distributions
-- SSH config and local overrides excluded from testing
+- Secrets and credential leaks are guarded locally by gitleaks and detect-private-key hooks
+- SSH configs and local overrides are excluded from version control via .gitignore
 
 ## Glossary
 

@@ -45,7 +45,16 @@ repos:
         types_or: [shell, markdown, yaml]
       - id: detect-private-key
         name: Detect Private Keys
-        files: ^\.ssh/
+        files: ^(\.ssh/|ssh/)
+
+  # Secret Scanning (Gitleaks)
+  - repo: local
+    hooks:
+      - id: gitleaks
+        name: Gitleaks Secret Scanner
+        entry: ./scripts/run-gitleaks.sh
+        language: script
+        pass_filenames: false
 
   # Check executable permissions for scripts
   - repo: local
