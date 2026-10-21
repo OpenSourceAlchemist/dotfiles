@@ -1,4 +1,4 @@
 #!/usr/bin/env zsh
 # Alien Minimal theme configuration
 # Omit am_prompt_start_tag to eliminate leading underscore prefix
-export AM_LEFT_SECTION=(am_ssh_st am_prompt_dir am_vi_prompt am_prompt_end_tag am_venv)
+export AM_LEFT_SECTION=(am_ssh_st am_prompt_dir am_prompt_end_tag am_venv)
