@@ -318,7 +318,7 @@ nano ~/.zshrc.local
 
 ```bash
 # Set up your tools and versions
-mise use node@18
+mise use node@22
 mise use python@3.11
 ```
 
