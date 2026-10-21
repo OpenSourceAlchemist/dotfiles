@@ -194,6 +194,7 @@ make dev-setup
    ```
 5. **Document**: Update relevant documentation if behavior or configuration changes.
 6. **Create Pull Request**: Push the branch to remote and open a Pull Request (`gh pr create`) for review to ensure secondary validation via GitHub Actions CI checks prior to merging.
+7. **Squash and Merge**: The default merge policy is **squash merge with source branch deletion** (`gh pr merge <PR> --squash --delete-branch`).
 
 ### Pre-Commit Hooks
 
