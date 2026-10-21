@@ -23,7 +23,6 @@ For detailed instructions, see [INSTALL.md](INSTALL.md).
 | Document | Description |
 |----------|-------------|
 | [INSTALL.md](INSTALL.md) | Complete installation guide |
-| [TODO.md](TODO.md) | Planned improvements and feature tracking |
 | [Version.md](Version.md) | Compatibility and version information |
 | [bootstrap.sh](bootstrap.sh) | System dependency installer |
 | [install.sh](install.sh) | Dotfiles symlink installer |

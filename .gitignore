@@ -115,6 +115,7 @@ $RECYCLE.BIN/
 .tofu_state.lock*
 
 # Personal notes or TODO files not meant for repo
+TODO.md
 notes.md
 secrets.md
 credentials.md

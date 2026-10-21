@@ -132,7 +132,7 @@ shellcheck:
 markdownlint:
 	@echo -e "${BLUE}Running markdownlint...${NC}"
 	@if command -v markdownlint > /dev/null 2>&1; then \
-		markdownlint README.md INSTALL.md TODO.md Version.md SYMLINKS.md || exit 0; \
+		markdownlint README.md INSTALL.md Version.md SYMLINKS.md || exit 0; \
 	else \
 		echo -e "${YELLOW}markdownlint not found. Install with: npm install -g markdownlint-cli${NC}"; \
 		exit 0; \

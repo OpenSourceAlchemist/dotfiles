@@ -16,7 +16,6 @@ This is a **cross-platform dotfiles management repository** that:
 |---------------|---------|
 | `install.sh` | Symlink creation script |
 | `bootstrap.sh` | System dependency installer |
-| `TODO.md` | Feature backlog and task tracking |
 | `INSTALL.md` | User installation guide |
 | `README.md` | Repository overview |
 | `AGENTS.md` | Agent development guidelines (this file) |
@@ -146,7 +145,7 @@ The `install.sh` script creates symlinks according to this mapping:
 1. Create file in appropriate directory (e.g., `vim/new-plugin.vim`)
 2. Add symlink mapping to `install.sh` `FILES_TO_SYMLINK` array
 3. Update `.gitignore` if the file could contain sensitive data
-4. Consider adding to `TODO.md` if it's a planned feature
+4. Open a GitHub issue or pull request to track planned features
 
 ### Updating Dependencies
 1. Review package mappings in `bootstrap.sh` for each OS
@@ -160,12 +159,9 @@ The `install.sh` script creates symlinks according to this mapping:
 3. Test with fresh VM/container
 4. Update `Supported Systems` table
 
-## Current TODO Items
+## Issue & Task Tracking
 
-- Interactive installation mode (`--interactive`)
-- Installation verification (`--verify` flag)
-- Handle shell change prompt after install
-- hk for pre-commit hook parallelization
+All bugs, backlog items, and planned enhancements are tracked directly via GitHub Issues. Do not maintain a separate `TODO.md` file.
 
 ## Development Workflow
 
