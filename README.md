@@ -74,6 +74,9 @@ The installer supports interactive and selective installation modes:
 # Install with an environment profile (e.g., work, personal)
 ./install.sh --profile work
 
+# Headless / CLI-only installation (omits GUI configurations)
+./install.sh --headless
+
 # Run non-destructive verification
 ./install.sh --verify
 # Or via Makefile:

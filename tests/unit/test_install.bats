@@ -66,6 +66,20 @@ teardown() {
     [[ "$output" =~ "All verification checks passed" ]]
 }
 
+@test "install.sh with --headless installs CLI dotfiles and omits GUI dotfiles" {
+    run "$REPO_DIR/install.sh" --headless
+    [ "$status" -eq 0 ]
+    # CLI dotfiles should be installed
+    [ -L "$HOME/.bashrc" ]
+    [ -L "$HOME/.zshrc" ]
+    [ -L "$HOME/.vimrc" ]
+    [ -L "$HOME/.tmux.conf" ]
+    [ -L "$HOME/.gitconfig" ]
+    # GUI dotfiles should NOT be installed
+    [ ! -e "$HOME/.Xdefaults" ]
+    [ ! -e "$HOME/.config/openbox/rc.xml" ]
+}
+
 @test "install.sh --verify catches missing symlinks" {
     run "$REPO_DIR/install.sh" --verify --component shell
     [ "$status" -eq 1 ]

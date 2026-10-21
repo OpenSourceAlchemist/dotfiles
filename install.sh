@@ -26,10 +26,11 @@ COMPONENT_FILES[shell]="bash/.bashrc bash/.bash_profile shell/.profile zsh/.zshr
 COMPONENT_FILES[editor]="vim/.vimrc"
 COMPONENT_FILES[multiplexer]="tmux/.tmux.conf tmux/.tmux.conf.goodies"
 COMPONENT_FILES[git]="git/.gitconfig"
-COMPONENT_FILES[tools]="mise/.asdfrc mise/.tool-versions direnv/.envrc fzf/.fzf.bash fzf/.fzf.zsh terraform/.terraformrc Xorg/.Xdefaults ssh/config:.ssh/config dotconfig/gh/config.yml:.config/gh/config.yml dotconfig/gh/hosts.yml:.config/gh/hosts.yml dotconfig/openbox/rc.xml:.config/openbox/rc.xml"
+COMPONENT_FILES[tools]="mise/.asdfrc mise/.tool-versions direnv/.envrc fzf/.fzf.bash fzf/.fzf.zsh terraform/.terraformrc ssh/config:.ssh/config dotconfig/gh/config.yml:.config/gh/config.yml dotconfig/gh/hosts.yml:.config/gh/hosts.yml"
+COMPONENT_FILES[gui]="Xorg/.Xdefaults dotconfig/openbox/rc.xml:.config/openbox/rc.xml"
 COMPONENT_FILES[agents]="agy/statusline.sh:.gemini/antigravity-cli/statusline.sh agents/skills/skeptical-auditor/SKILL.md:.agents/skills/skeptical-auditor/SKILL.md agents/rules/skeptical-auditor.md:.agents/rules/skeptical-auditor.md pi/prompts/skeptical-audit.md:.pi/agent/prompts/skeptical-audit.md"
 
-ALL_COMPONENTS=("shell" "editor" "multiplexer" "git" "tools" "agents")
+ALL_COMPONENTS=("shell" "editor" "multiplexer" "git" "tools" "agents" "gui")
 
 # --- Helper Functions ---
 
@@ -45,8 +46,10 @@ Usage: $(basename "$0") [OPTIONS]
 Options:
     -i, --interactive       Prompt for each component to install
     -c, --component <name>  Install specific component(s) (comma-separated or repeatable):
-                            [shell, editor, multiplexer, git, tools, agents, all]
+                            [shell, editor, multiplexer, git, tools, agents, gui, all]
     -p, --profile <name>    Apply environment profile (e.g., work, personal)
+    --headless, --no-gui, --cli-only
+                            Install CLI configurations only (omits GUI/X11/Openbox)
     -v, --verify            Verify symlinks, tools, and configs without installing
     --clean-backups [N]     Prune old backups keeping N most recent (default: 5)
     -h, --help              Show this help message
@@ -455,6 +458,7 @@ verify_installation() {
 main() {
     local interactive=false
     local verify_only=false
+    local headless="${DOTFILES_HEADLESS:-false}"
     local selected_components=()
     local profile="${DOTFILES_PROFILE:-}"
     local clean_backups_only=false
@@ -499,6 +503,10 @@ main() {
                 ;;
             --profile=*)
                 profile="${1#*=}"
+                shift
+                ;;
+            --headless|--no-gui|--cli-only)
+                headless=true
                 shift
                 ;;
             -v|--verify)
@@ -557,14 +565,27 @@ main() {
         fi
     fi
 
-    # If no specific components selected, default to all
+    # If no specific components selected, default to all (or headless subset)
     if [ ${#selected_components[@]} -eq 0 ]; then
-        selected_components=("${ALL_COMPONENTS[@]}")
+        if [ "$headless" = true ]; then
+            for c in "${ALL_COMPONENTS[@]}"; do
+                [ "$c" != "gui" ] && selected_components+=("$c")
+            done
+        else
+            selected_components=("${ALL_COMPONENTS[@]}")
+        fi
     else
         # Handle "all" keyword
         for c in "${selected_components[@]}"; do
             if [ "$c" == "all" ]; then
-                selected_components=("${ALL_COMPONENTS[@]}")
+                if [ "$headless" = true ]; then
+                    selected_components=()
+                    for comp in "${ALL_COMPONENTS[@]}"; do
+                        [ "$comp" != "gui" ] && selected_components+=("$comp")
+                    done
+                else
+                    selected_components=("${ALL_COMPONENTS[@]}")
+                fi
                 break
             fi
         done

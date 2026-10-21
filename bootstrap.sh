@@ -208,9 +208,26 @@ install_debian_dependencies() {
         "compton:compton:picom"
     )
 
+    local gui_pkgs=("rxvt-unicode" "xclip" "xscreensaver" "compton")
+
     for dep in "${deps[@]}"; do
         IFS=':' read -r pkg cmd alt_cmd <<< "$dep"
         [ -z "$cmd" ] && cmd="$pkg"
+
+        # If headless, skip graphical / display packages
+        if [ "${HEADLESS:-false}" = true ]; then
+            local is_gui=false
+            for g in "${gui_pkgs[@]}"; do
+                if [ "$pkg" == "$g" ]; then
+                    is_gui=true
+                    break
+                fi
+            done
+            if [ "$is_gui" = true ]; then
+                echo "  Skipping GUI package '$pkg' (headless mode)"
+                continue
+            fi
+        fi
 
         # Check if already installed
         if command_exists "$cmd" || ( [ -n "$alt_cmd" ] && command_exists "$alt_cmd" ); then
@@ -260,7 +277,23 @@ install_alpine_dependencies() {
         "xscreensaver"
     )
 
+    local gui_pkgs=("rxvt-unicode" "xclip" "xscreensaver")
+
     for pkg in "${deps[@]}"; do
+        if [ "${HEADLESS:-false}" = true ]; then
+            local is_gui=false
+            for g in "${gui_pkgs[@]}"; do
+                if [ "$pkg" == "$g" ]; then
+                    is_gui=true
+                    break
+                fi
+            done
+            if [ "$is_gui" = true ]; then
+                echo "  Skipping GUI package '$pkg' (headless mode)"
+                continue
+            fi
+        fi
+
         if command_exists "$pkg"; then
             echo -e "  ${GREEN}✓${NC} $pkg is already installed"
         else
@@ -637,9 +670,27 @@ install_zsh_antigen() {
 # --- Main Script ---
 
 main() {
+    HEADLESS="${DOTFILES_HEADLESS:-false}"
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --headless|--no-gui|--cli-only)
+                HEADLESS=true
+                shift
+                ;;
+            -h|--help)
+                echo "Usage: $(basename "$0") [--headless|--no-gui|--cli-only]"
+                exit 0
+                ;;
+            *)
+                shift
+                ;;
+        esac
+    done
+
     echo ""
     echo -e "${BLUE}════════════════════════════════════════════════════${NC}"
     echo -e "${BLUE}  ${GREEN}Dotfiles Bootstrap${NC} - Installing Dependencies"
+    [ "$HEADLESS" = true ] && echo -e "  ${YELLOW}Mode: Headless / CLI-only (omitting GUI packages)${NC}"
     echo -e "${BLUE}════════════════════════════════════════════════════${NC}"
     echo ""
 

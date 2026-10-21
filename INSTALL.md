@@ -183,6 +183,9 @@ Run the installation script to symlink dotfiles:
 # Install with an environment profile (e.g., work, personal)
 ./install.sh --profile work
 
+# Headless / CLI-only installation (omits X11 and Openbox GUI configs)
+./install.sh --headless
+
 # Verify installation without making changes
 ./install.sh --verify
 
