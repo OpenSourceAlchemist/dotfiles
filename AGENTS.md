@@ -39,6 +39,10 @@ This is a **cross-platform dotfiles management repository** that:
 ├── fzf/              # fzf keybindings
 ├── git/              # Git configuration
 ├── mise/             # mise/asdf tool versions
+├── pi/               # pi-coding-agent configuration and prompt shortcuts
+│   ├── models.json   # Model provider configurations
+│   ├── settings.json # Agent preferences and extensions
+│   └── prompts/      # Custom slash command prompt shortcuts
 ├── shell/            # Shared shell configuration (.profile)
 ├── ssh/              # SSH configuration (includes config.d/ for local overrides)
 ├── terraform/        # OpenTofu configuration (terraformrc compatible)
@@ -78,6 +82,9 @@ The `install.sh` script creates symlinks according to this mapping:
 | `agy/statusline.sh` | `~/.gemini/antigravity-cli/statusline.sh` |
 | `agents/skills/skeptical-auditor/SKILL.md` | `~/.agents/skills/skeptical-auditor/SKILL.md` |
 | `agents/rules/skeptical-auditor.md` | `~/.agents/rules/skeptical-auditor.md` |
+| `pi/settings.json` | `~/.pi/agent/settings.json` |
+| `pi/models.json` | `~/.pi/agent/models.json` |
+| `pi/prompts/skeptical-audit.md` | `~/.pi/agent/prompts/skeptical-audit.md` |
 
 ## Key Scripts
 

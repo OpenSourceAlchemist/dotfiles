@@ -43,3 +43,18 @@ jobs:
 
       - name: Run Pre-commit Checks
         uses: pre-commit/action@v3.0.1
+
+  test:
+    name: Automated Tests (Bats)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Install Dependencies & Bats
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y zsh vim tmux git bats
+
+      - name: Run Bats Test Suite
+        run: bats -r tests/

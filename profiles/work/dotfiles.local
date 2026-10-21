@@ -1,0 +1,2 @@
+# Work profile environment overrides
+export PROFILE="work"

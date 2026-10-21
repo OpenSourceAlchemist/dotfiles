@@ -7,12 +7,13 @@ This document lists the tested and supported versions for all tools and operatin
 | OS | Version | Support Level | Test Status |
 |----|---------|---------------|-------------|
 | Debian | 11 (Bullseye) | Full | ✅ Tested |
-| Debian | 12 (Bookworm) | Full | ✅ Tested |
+| Debian | 13 (Trixie) | Full | ✅ Tested (Container E2E) |
 | Ubuntu | 22.04 LTS (Jammy) | Full | ✅ Tested |
-| Ubuntu | 24.04 LTS (Noble) | Full | ✅ Tested |
+| Ubuntu | 24.04 LTS (Noble) | Full | ✅ Tested (Container E2E) |
+| Ubuntu | 26.04 LTS (Resolute) | Full | ✅ Tested (Container E2E) |
 | Fedora | 39+ | Full | ⚠️ Partial |
 | RHEL/CentOS/Rocky | 9+ | Full | ⚠️ Partial |
-| Alpine Linux | 3.19+ | Full | ✅ Tested |
+| Alpine Linux | 3.19+ | Full | ✅ Tested (Container E2E) |
 | macOS | 12 (Monterey) | Full | ✅ Tested |
 | macOS | 13 (Ventura) | Full | ✅ Tested |
 | macOS | 14 (Sonoma) | Full | ✅ Tested |

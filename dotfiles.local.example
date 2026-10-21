@@ -1,0 +1,30 @@
+# ~/.dotfiles.local - Machine-specific and private configuration overrides
+#
+# This file is automatically sourced by ~/.bashrc, ~/.zshrc, and ~/.profile
+# Copy this file to ~/.dotfiles.local:
+#   cp dotfiles.local.example ~/.dotfiles.local
+#
+# Note: Keep syntax POSIX-compatible if you want it loaded by ~/.profile (sh)
+# as well as bash and zsh.
+
+# --- User Identity & Email ---
+# export GIT_AUTHOR_NAME="Your Name"
+# export GIT_AUTHOR_EMAIL="your.email@example.com"
+# export MAILNAME="your.email@example.com"
+
+# --- Machine-Specific PATH ---
+# if [ -d "$HOME/custom/bin" ]; then
+#     PATH="$HOME/custom/bin:$PATH"
+# fi
+
+# --- Internal Tool Paths ---
+# export GITOPS_TOOLS="$HOME/src/internal/gitops-tools"
+# export KUBESEAL_CONFIG_DIR="$HOME/src/internal/kubeseal-config"
+
+# --- Secrets & API Keys (DO NOT COMMIT) ---
+# export OPENAI_API_KEY="sk-..."
+# export ANTHROPIC_API_KEY="sk-ant-..."
+# export GITHUB_TOKEN="ghp_..."
+
+# --- Custom Aliases ---
+# alias work-vpn="sudo openvpn /etc/openvpn/work.conf"

@@ -37,6 +37,25 @@ command_exists() {
     command -v "$1" &> /dev/null
 }
 
+run_hooks() {
+    local phase="$1"
+    local hook_dirs=(
+        "$DOTFILES_DIR/hooks/$phase"
+        "$HOME/.dotfiles.hooks.d/$phase"
+    )
+
+    for dir in "${hook_dirs[@]}"; do
+        if [ -d "$dir" ]; then
+            for hook in "$dir"/*; do
+                if [ -f "$hook" ] && [ -x "$hook" ]; then
+                    log_info "Executing $phase hook: $(basename "$hook")..."
+                    "$hook" || log_warn "Hook $hook exited with status $?"
+                fi
+            done
+        fi
+    done
+}
+
 # --- OS Detection ---
 
 detect_os() {
@@ -176,7 +195,7 @@ install_debian_dependencies() {
     local missing=()
     local deps=(
         "zsh:zsh"
-        "vim:vim-nox:vim"
+        "vim-nox:vim"
         "tmux:tmux"
         "git:git"
         "rsync:rsync"
@@ -189,15 +208,33 @@ install_debian_dependencies() {
         "compton:compton:picom"
     )
 
+    local gui_pkgs=("rxvt-unicode" "xclip" "xscreensaver" "compton")
+
     for dep in "${deps[@]}"; do
-        IFS=':' read -r target primary alt <<< "$dep"
+        IFS=':' read -r pkg cmd alt_cmd <<< "$dep"
+        [ -z "$cmd" ] && cmd="$pkg"
+
+        # If headless, skip graphical / display packages
+        if [ "${HEADLESS:-false}" = true ]; then
+            local is_gui=false
+            for g in "${gui_pkgs[@]}"; do
+                if [ "$pkg" == "$g" ]; then
+                    is_gui=true
+                    break
+                fi
+            done
+            if [ "$is_gui" = true ]; then
+                echo "  Skipping GUI package '$pkg' (headless mode)"
+                continue
+            fi
+        fi
 
         # Check if already installed
-        if command_exists "$primary" || ( [ -n "$alt" ] && command_exists "$alt" ); then
-            echo -e "  ${GREEN}✓${NC} $target ($primary) is already installed"
+        if command_exists "$cmd" || ( [ -n "$alt_cmd" ] && command_exists "$alt_cmd" ); then
+            echo -e "  ${GREEN}✓${NC} $pkg ($cmd) is already installed"
         else
-            echo "  Marking $target for installation..."
-            missing+=("$primary")
+            echo "  Marking $pkg for installation..."
+            missing+=("$pkg")
         fi
     done
 
@@ -240,7 +277,23 @@ install_alpine_dependencies() {
         "xscreensaver"
     )
 
+    local gui_pkgs=("rxvt-unicode" "xclip" "xscreensaver")
+
     for pkg in "${deps[@]}"; do
+        if [ "${HEADLESS:-false}" = true ]; then
+            local is_gui=false
+            for g in "${gui_pkgs[@]}"; do
+                if [ "$pkg" == "$g" ]; then
+                    is_gui=true
+                    break
+                fi
+            done
+            if [ "$is_gui" = true ]; then
+                echo "  Skipping GUI package '$pkg' (headless mode)"
+                continue
+            fi
+        fi
+
         if command_exists "$pkg"; then
             echo -e "  ${GREEN}✓${NC} $pkg is already installed"
         else
@@ -551,48 +604,97 @@ install_zsh_antigen() {
 
     # Common locations where antigen might be installed
     local antigen_paths=(
+        "${ANTIGEN_PATH:-}"
+        "$HOME/.antigen/antigen.zsh"
+        "$HOME/.local/share/antigen/antigen.zsh"
+        "$HOME/.zsh/antigen/zsh-antigen/antigen.zsh"
         "/usr/share/zsh-antigen/antigen.zsh"
         "/usr/local/share/zsh-antigen/antigen.zsh"
-        "$HOME/.zsh/antigen/zsh-antigen/antigen.zsh"
+        "${HOMEBREW_PREFIX:-}/share/antigen/antigen.zsh"
     )
 
     for path in "${antigen_paths[@]}"; do
-        if [ -f "$path" ]; then
+        if [ -n "$path" ] && [ -f "$path" ]; then
             log_success "antigen is already installed at $path"
             return 0
         fi
     done
 
-    log_info "Installing antigen to ~/.zsh/antigen..."
-    mkdir -p "$HOME/.zsh"
-
+    # Try system package managers first
     if command_exists brew; then
-        brew install antigen
+        if brew install antigen; then
+            log_success "antigen installed via Homebrew"
+            return 0
+        fi
+        log_warn "brew install antigen failed, attempting user-space install..."
     elif command_exists apt-get; then
-        sudo apt-get install -y zsh-antigen
-    elif command_exists apk; then
-        # Alpine doesn't have antigen in repos, install via git
-        git clone --depth 1 https://github.com/zsh-users/antigen "$HOME/.zsh/antigen/zsh-antigen"
-        log_success "antigen installed to ~/.zsh/antigen"
-        return 0
-    elif command_exists git; then
-        git clone --depth 1 https://github.com/zsh-users/antigen "$HOME/.zsh/antigen/zsh-antigen"
-    else
-        log_warn "Please install antigen manually: git clone --depth 1 https://github.com/zsh-users/antigen ~/.zsh/antigen/zsh-antigen"
-        return 1
+        if command_exists sudo; then
+            if sudo apt-get install -y zsh-antigen 2>/dev/null; then
+                log_success "antigen installed via apt"
+                return 0
+            fi
+        else
+            if apt-get install -y zsh-antigen 2>/dev/null; then
+                log_success "antigen installed via apt"
+                return 0
+            fi
+        fi
+        log_warn "apt install zsh-antigen failed, attempting user-space install..."
     fi
 
-    log_success "antigen installation complete"
+    # Fallback to user-home installation (~/.antigen/antigen.zsh)
+    log_info "Installing antigen to user home directory (~/.antigen/antigen.zsh)..."
+    mkdir -p "$HOME/.antigen"
+
+    if command_exists curl; then
+        if curl -fsSL "https://raw.githubusercontent.com/zsh-users/antigen/master/bin/antigen.zsh" -o "$HOME/.antigen/antigen.zsh"; then
+            log_success "antigen installed to ~/.antigen/antigen.zsh"
+            return 0
+        fi
+    elif command_exists wget; then
+        if wget -qO "$HOME/.antigen/antigen.zsh" "https://raw.githubusercontent.com/zsh-users/antigen/master/bin/antigen.zsh"; then
+            log_success "antigen installed to ~/.antigen/antigen.zsh"
+            return 0
+        fi
+    elif command_exists git; then
+        if git clone --depth 1 "https://github.com/zsh-users/antigen" "$HOME/.zsh/antigen/zsh-antigen"; then
+            log_success "antigen installed to ~/.zsh/antigen"
+            return 0
+        fi
+    fi
+
+    log_warn "Could not auto-install antigen. Please install antigen manually."
+    return 0
 }
 
 # --- Main Script ---
 
 main() {
+    HEADLESS="${DOTFILES_HEADLESS:-false}"
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --headless|--no-gui|--cli-only)
+                HEADLESS=true
+                shift
+                ;;
+            -h|--help)
+                echo "Usage: $(basename "$0") [--headless|--no-gui|--cli-only]"
+                exit 0
+                ;;
+            *)
+                shift
+                ;;
+        esac
+    done
+
     echo ""
     echo -e "${BLUE}════════════════════════════════════════════════════${NC}"
     echo -e "${BLUE}  ${GREEN}Dotfiles Bootstrap${NC} - Installing Dependencies"
+    [ "$HEADLESS" = true ] && echo -e "  ${YELLOW}Mode: Headless / CLI-only (omitting GUI packages)${NC}"
     echo -e "${BLUE}════════════════════════════════════════════════════${NC}"
     echo ""
+
+    run_hooks "pre-bootstrap"
 
     detect_os
 
@@ -635,6 +737,8 @@ main() {
     # install_terraform()  # Removed: Replaced with install_opentofu() for major version update
     install_gh
     install_zsh_antigen
+
+    run_hooks "post-bootstrap"
 
     echo ""
     echo -e "${GREEN}════════════════════════════════════════════════════${NC}"

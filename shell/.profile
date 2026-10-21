@@ -25,5 +25,22 @@ fi
 if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
-# Set PATH, MANPATH, etc., for Homebrew.
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+# Set PATH, MANPATH, etc., for Homebrew dynamically if present
+if [ -z "${HOMEBREW_PREFIX:-}" ]; then
+    if [ -x "/opt/homebrew/bin/brew" ]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    elif [ -x "/usr/local/bin/brew" ]; then
+        eval "$(/usr/local/bin/brew shellenv)"
+    elif [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    elif [ -x "$HOME/.linuxbrew/bin/brew" ]; then
+        eval "$("$HOME/.linuxbrew/bin/brew" shellenv)"
+    elif command -v brew >/dev/null 2>&1; then
+        eval "$(brew shellenv)"
+    fi
+fi
+
+# Load machine-specific local overrides
+if [ -f "$HOME/.dotfiles.local" ]; then
+    . "$HOME/.dotfiles.local"
+fi

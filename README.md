@@ -60,6 +60,38 @@ mkdir -p ~/.ssh/config.d
 nano ~/.ssh/config.d/home
 ```
 
+### Installation Options
+
+The installer supports interactive and selective installation modes:
+
+```bash
+# Interactive component selection
+./install.sh --interactive
+
+# Install specific components only
+./install.sh --component shell,git
+
+# Install with an environment profile (e.g., work, personal)
+./install.sh --profile work
+
+# Headless / CLI-only installation (omits GUI configurations)
+./install.sh --headless
+
+# Run non-destructive verification
+./install.sh --verify
+# Or via Makefile:
+make verify
+
+# Clean older backups
+make clean-backups
+```
+
+### Environment Profiles
+
+Profiles under `profiles/<name>/` allow customized Git author identities, signing keys, and environment variables:
+- `work`: Configures work Git credentials and settings
+- `personal`: Configures personal Git credentials and settings
+
 ### Personal Overrides
 
 For settings that vary between machines or users, create local override files:
