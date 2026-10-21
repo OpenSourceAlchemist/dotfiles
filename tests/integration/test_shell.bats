@@ -69,7 +69,7 @@ teardown() {
     fi
 }
 
-@test "alien-minimal left prompt excludes start tag underscore prefix" {
+@test "alien-minimal left prompt excludes start tag underscore prefix and am_vi_prompt" {
     run "$REPO_DIR/install.sh" --component shell
     [ "$status" -eq 0 ]
 
@@ -77,6 +77,20 @@ teardown() {
         run zsh -f -c "HOME='$HOME'; source '$HOME/.amrc'; echo \"\${AM_LEFT_SECTION[*]}\""
         [ "$status" -eq 0 ]
         [[ ! "$output" =~ "am_prompt_start_tag" ]]
+        [[ ! "$output" =~ "am_vi_prompt" ]]
+    else
+        skip "zsh not installed"
+    fi
+}
+
+@test "alien-minimal left prompt renders cleanly without missing command errors" {
+    run "$REPO_DIR/install.sh" --component shell
+    [ "$status" -eq 0 ]
+
+    if command -v zsh >/dev/null 2>&1; then
+        run zsh -i -c 'am_l_prompt_render'
+        [ "$status" -eq 0 ]
+        [[ ! "$output" =~ "am_vi_prompt: command not found" ]]
     else
         skip "zsh not installed"
     fi

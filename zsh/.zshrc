@@ -44,7 +44,7 @@ if [ "$ANTIGEN_LOADED" -eq 1 ]; then
     antigen bundle command-not-found
 
     # Alien Minimal theme configuration: omit prompt start tag (_)
-    export AM_LEFT_SECTION=(am_ssh_st am_prompt_dir am_vi_prompt am_prompt_end_tag am_venv)
+    export AM_LEFT_SECTION=(am_ssh_st am_prompt_dir am_prompt_end_tag am_venv)
 
     #antigen bundle zsh-user/zsh-syntax-highlighting
     antigen theme eendroroy/alien-minimal alien-minimal
