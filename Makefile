@@ -1,7 +1,7 @@
 # Dotfiles Development Makefile
 # Common operations for installation, uninstallation, and development
 
-.PHONY: help install uninstall verify backup clean-backups lint test test-unit test-integration test-debian test-alpine test-e2e setup dev-setup pre-commit-check help gitleaks secret-scan
+.PHONY: help install uninstall verify backup clean-backups lint test test-unit test-integration test-debian test-alpine test-ubuntu test-e2e setup dev-setup pre-commit-check help gitleaks secret-scan
 
 # Default target
 .DEFAULT_GOAL := help
@@ -192,5 +192,9 @@ test-alpine:
 	@echo -e "${BLUE}Running Alpine Linux E2E container test...${NC}"
 	@./scripts/test-e2e-alpine.sh
 
-test-e2e: test-debian test-alpine
+test-ubuntu:
+	@echo -e "${BLUE}Running Ubuntu 24.04 and 26.04 E2E container test...${NC}"
+	@./scripts/test-e2e-ubuntu.sh
+
+test-e2e: test-debian test-alpine test-ubuntu
 	@echo "  make shellcheck  # Check shell scripts"
