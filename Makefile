@@ -1,7 +1,7 @@
 # Dotfiles Development Makefile
 # Common operations for installation, uninstallation, and development
 
-.PHONY: help install uninstall verify backup clean-backups lint test test-unit test-integration test-debian test-alpine test-ubuntu test-e2e setup dev-setup pre-commit-check help gitleaks secret-scan
+.PHONY: help install uninstall verify backup clean-backups clean-legacy lint test test-unit test-integration test-debian test-alpine test-ubuntu test-e2e setup dev-setup pre-commit-check help gitleaks secret-scan
 
 # Default target
 .DEFAULT_GOAL := help
@@ -31,6 +31,7 @@ help:
 	@echo "  verify         : Verify symlinks are correctly configured"
 	@echo "  backup         : Create a backup of existing dotfiles"
 	@echo "  clean-backups  : Prune old backups keeping 5 most recent"
+	@echo "  clean-legacy   : Remove legacy duplicate dotfile symlinks (e.g., ..zshrc)"
 	@echo "  lint           : Run all linters (shellcheck, markdownlint, gitleaks)"
 	@echo "  shellcheck     : Run shellcheck on all shell scripts"
 	@echo "  markdownlint   : Run markdownlint on all markdown files"
@@ -106,6 +107,10 @@ backup:
 clean-backups:
 	@echo -e "${BLUE}Cleaning old dotfiles backups...${NC}"
 	@./install.sh --clean-backups
+
+clean-legacy:
+	@echo -e "${BLUE}Cleaning legacy duplicate dotfile symlinks...${NC}"
+	@./install.sh --clean-legacy
 
 # --- Linting ---
 

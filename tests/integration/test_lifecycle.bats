@@ -58,3 +58,12 @@ teardown() {
     [ "$status" -eq 0 ]
     [ ! -e "$HOME/.bashrc" ]
 }
+
+@test "uninstall.sh removes legacy duplicate symlinks" {
+    ln -s "$REPO_DIR/zsh/.zshrc" "$HOME/..zshrc"
+    [ -L "$HOME/..zshrc" ]
+
+    run "$REPO_DIR/uninstall.sh" --skip-backup --force
+    [ "$status" -eq 0 ]
+    [ ! -e "$HOME/..zshrc" ]
+}

@@ -52,6 +52,7 @@ Options:
                             Install CLI configurations only (omits GUI/X11/Openbox)
     -v, --verify            Verify symlinks, tools, and configs without installing
     --clean-backups [N]     Prune old backups keeping N most recent (default: 5)
+    --clean-legacy          Clean legacy duplicate dotfile symlinks (e.g., ..zshrc)
     -h, --help              Show this help message
 
 Default:
@@ -113,6 +114,42 @@ rotate_backups() {
             log_warn "  Skipping unexpected directory name: $dir_to_delete"
         fi
     done
+}
+
+# --- Legacy Duplicate Symlink Cleanup ---
+
+cleanup_legacy_symlinks() {
+    local target_dir="${1:-$HOME}"
+    local dotfiles_root="${2:-$DOTFILES_DIR}"
+    local canonical_repo
+    canonical_repo="$(cd "$dotfiles_root" 2>/dev/null && pwd -P || echo "$dotfiles_root")"
+    local removed_count=0
+
+    while IFS= read -r link; do
+        [ -z "$link" ] && continue
+        if [ -L "$link" ]; then
+            local base
+            base="$(basename "$link")"
+            if [[ "$base" == ..* && "$base" != ".." ]]; then
+                local dest
+                dest="$(readlink "$link" 2>/dev/null || true)"
+                local canonical_dest
+                canonical_dest="$(readlink -f "$link" 2>/dev/null || true)"
+                if [[ "$dest" == "$dotfiles_root"* ]] || { [ -n "$canonical_dest" ] && [[ "$canonical_dest" == "$canonical_repo"* ]]; }; then
+                    log_info "Removing legacy duplicate symlink: $(basename "$link") -> $dest"
+                    rm -f "$link"
+                    removed_count=$((removed_count + 1))
+                fi
+            fi
+        fi
+    done < <(find "$target_dir" -maxdepth 1 -name "..*" -type l 2>/dev/null)
+
+    if [ "$removed_count" -gt 0 ]; then
+        log_success "Cleaned up $removed_count legacy duplicate symlink(s)."
+    else
+        log_info "No legacy duplicate symlinks found."
+    fi
+    return 0
 }
 
 # --- Profile Support (Issue #24) ---
@@ -410,7 +447,37 @@ verify_installation() {
     done
 
     echo ""
-    echo "2. Checking Required Dependencies:"
+    echo "2. Checking for Legacy Duplicate Symlinks:"
+    echo "----------------------------------------"
+    local legacy_found=0
+    local canonical_repo
+    canonical_repo="$(cd "$DOTFILES_DIR" 2>/dev/null && pwd -P || echo "$DOTFILES_DIR")"
+    while IFS= read -r link; do
+        [ -z "$link" ] && continue
+        if [ -L "$link" ]; then
+            local base
+            base="$(basename "$link")"
+            if [[ "$base" == ..* && "$base" != ".." ]]; then
+                local dest
+                dest="$(readlink "$link" 2>/dev/null || true)"
+                local canonical_dest
+                canonical_dest="$(readlink -f "$link" 2>/dev/null || true)"
+                if [[ "$dest" == "$DOTFILES_DIR"* ]] || { [ -n "$canonical_dest" ] && [[ "$canonical_dest" == "$canonical_repo"* ]]; }; then
+                    echo -e "  ${YELLOW}⚠${NC} ~/$base -> $dest (legacy duplicate link)"
+                    legacy_found=$((legacy_found + 1))
+                fi
+            fi
+        fi
+    done < <(find "$HOME" -maxdepth 1 -name "..*" -type l 2>/dev/null)
+
+    if [ "$legacy_found" -eq 0 ]; then
+        echo -e "  ${GREEN}✓${NC} No legacy duplicate symlinks detected"
+    else
+        echo -e "  ${YELLOW}⚠${NC} Found $legacy_found legacy duplicate symlink(s). Run './install.sh --clean-legacy' to remove."
+    fi
+
+    echo ""
+    echo "3. Checking Required Dependencies:"
     echo "--------------------------------"
     local check_tools=("zsh" "vim" "tmux" "git")
     for tool in "${check_tools[@]}"; do
@@ -423,7 +490,7 @@ verify_installation() {
     done
 
     echo ""
-    echo "3. Checking Shell Configuration Syntax:"
+    echo "4. Checking Shell Configuration Syntax:"
     echo "--------------------------------------"
     if command -v bash &> /dev/null && [ -f "$HOME/.bashrc" ]; then
         if bash -n "$HOME/.bashrc" 2>/dev/null; then
@@ -463,6 +530,7 @@ main() {
     local profile="${DOTFILES_PROFILE:-}"
     local clean_backups_only=false
     local clean_backups_count="$MAX_BACKUPS"
+    local clean_legacy_only=false
 
     # Argument parsing
     while [[ $# -gt 0 ]]; do
@@ -522,6 +590,10 @@ main() {
                     shift
                 fi
                 ;;
+            --clean-legacy)
+                clean_legacy_only=true
+                shift
+                ;;
             -h|--help)
                 print_usage
                 exit 0
@@ -533,6 +605,12 @@ main() {
                 ;;
         esac
     done
+
+    # Clean legacy duplicate symlinks mode
+    if [ "$clean_legacy_only" = true ]; then
+        cleanup_legacy_symlinks "$HOME" "$DOTFILES_DIR"
+        exit 0
+    fi
 
     # Clean backups mode
     if [ "$clean_backups_only" = true ]; then
@@ -612,6 +690,9 @@ main() {
 
     # Dependency & Antigen checks
     ensure_antigen
+
+    # Clean legacy duplicate symlinks (e.g., ..zshrc)
+    cleanup_legacy_symlinks "$HOME" "$DOTFILES_DIR"
 
     # Symlinking selected components
     log_info "Creating symlinks..."

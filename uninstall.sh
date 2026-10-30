@@ -22,6 +22,8 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 # --- Configuration ---
 
+DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 MANAGED_FILES=(
     ".bashrc"
     ".bash_profile"
@@ -75,6 +77,31 @@ remove_symlink() {
     else
         log_info "Does not exist: ~/$file"
     fi
+}
+
+cleanup_legacy_symlinks() {
+    local target_dir="${1:-$HOME}"
+    local dotfiles_root="${2:-$DOTFILES_DIR}"
+    local canonical_repo
+    canonical_repo="$(cd "$dotfiles_root" 2>/dev/null && pwd -P || echo "$dotfiles_root")"
+
+    while IFS= read -r link; do
+        [ -z "$link" ] && continue
+        if [ -L "$link" ]; then
+            local base
+            base="$(basename "$link")"
+            if [[ "$base" == ..* && "$base" != ".." ]]; then
+                local dest
+                dest="$(readlink "$link" 2>/dev/null || true)"
+                local canonical_dest
+                canonical_dest="$(readlink -f "$link" 2>/dev/null || true)"
+                if [[ "$dest" == "$dotfiles_root"* ]] || { [ -n "$canonical_dest" ] && [[ "$canonical_dest" == "$canonical_repo"* ]]; }; then
+                    rm -f "$link"
+                    log_success "Removed legacy duplicate symlink: ~/$base"
+                fi
+            fi
+        fi
+    done < <(find "$target_dir" -maxdepth 1 -name "..*" -type l 2>/dev/null)
 }
 
 restore_backup() {
@@ -189,6 +216,9 @@ main() {
     for file in "${MANAGED_FILES[@]}"; do
         remove_symlink "$file"
     done
+
+    # Remove legacy duplicate symlinks if present
+    cleanup_legacy_symlinks "$HOME" "$DOTFILES_DIR"
 
     # Clean up empty parent directories if created by dotfiles
     for dir in ".dotzsh" ".agents/skills/skeptical-auditor" ".agents/rules" ".pi/agent/prompts"; do

@@ -85,3 +85,49 @@ teardown() {
     [ "$status" -eq 1 ]
     [[ "$output" =~ "does not exist" ]]
 }
+
+@test "install.sh --clean-legacy removes legacy duplicate symlinks and is idempotent" {
+    # Create mock legacy duplicate symlinks
+    ln -s "$REPO_DIR/bash/.bashrc" "$HOME/..bashrc"
+    ln -s "$REPO_DIR/zsh/.zshrc" "$HOME/..zshrc"
+
+    [ -L "$HOME/..bashrc" ]
+    [ -L "$HOME/..zshrc" ]
+
+    # Run clean-legacy
+    run "$REPO_DIR/install.sh" --clean-legacy
+    [ "$status" -eq 0 ]
+    [[ "$output" =~ "Cleaned up 2 legacy duplicate symlink(s)" ]]
+
+    [ ! -e "$HOME/..bashrc" ]
+    [ ! -e "$HOME/..zshrc" ]
+
+    # Run clean-legacy a second time to ensure idempotency
+    run "$REPO_DIR/install.sh" --clean-legacy
+    [ "$status" -eq 0 ]
+    [[ "$output" =~ "No legacy duplicate symlinks found" ]]
+}
+
+@test "install.sh automatically cleans legacy duplicate symlinks during installation" {
+    # Create mock legacy duplicate symlink
+    ln -s "$REPO_DIR/bash/.bashrc" "$HOME/..bashrc"
+    [ -L "$HOME/..bashrc" ]
+
+    # Run install
+    run "$REPO_DIR/install.sh" --component shell
+    [ "$status" -eq 0 ]
+    [ -L "$HOME/.bashrc" ]
+    [ ! -e "$HOME/..bashrc" ]
+}
+
+@test "install.sh --clean-legacy preserves unrelated symlinks and regular files" {
+    mkdir -p "$TEST_HOME/other_dir"
+    echo "test" > "$TEST_HOME/other_dir/other_file"
+    ln -s "$TEST_HOME/other_dir/other_file" "$HOME/..unrelated"
+    echo "regular file" > "$HOME/..regular_file"
+
+    run "$REPO_DIR/install.sh" --clean-legacy
+    [ "$status" -eq 0 ]
+    [ -L "$HOME/..unrelated" ]
+    [ -f "$HOME/..regular_file" ]
+}
