@@ -69,7 +69,6 @@ The installation script (`install.sh`) creates symlinks from your home directory
 
 | Home File | Repository Source | Description |
 |------------|-------------------|-------------|
-| `~/.config/gh/hosts.yml` | `*.yml` | GitHub CLI authentication |
 | `~/.config/direnv/` | (user-defined) | direnv environment overrides |
 
 ## Local Override Files (Not Symlinked)

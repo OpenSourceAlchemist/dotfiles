@@ -131,3 +131,18 @@ teardown() {
     [ -L "$HOME/..unrelated" ]
     [ -f "$HOME/..regular_file" ]
 }
+
+@test "install.sh does not manage gh cli configuration and removes deprecated gh symlinks" {
+    mkdir -p "$HOME/.config/gh"
+    # Create mock deprecated symlink pointing into dotfiles repo
+    ln -s "$REPO_DIR/bash/.bashrc" "$HOME/.config/gh/hosts.yml"
+    echo "keep this regular file" > "$HOME/.config/gh/config.yml"
+
+    run "$REPO_DIR/install.sh" --component tools
+    [ "$status" -eq 0 ]
+
+    # Deprecated symlink pointing into dotfiles repo should be removed
+    [ ! -L "$HOME/.config/gh/hosts.yml" ]
+    # Regular file should be preserved
+    [ -f "$HOME/.config/gh/config.yml" ]
+}

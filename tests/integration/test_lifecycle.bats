@@ -67,3 +67,14 @@ teardown() {
     [ "$status" -eq 0 ]
     [ ! -e "$HOME/..zshrc" ]
 }
+
+@test "uninstall.sh removes deprecated gh symlinks while preserving regular files" {
+    mkdir -p "$HOME/.config/gh"
+    ln -s "$REPO_DIR/bash/.bashrc" "$HOME/.config/gh/hosts.yml"
+    echo "user auth token" > "$HOME/.config/gh/config.yml"
+
+    run "$REPO_DIR/uninstall.sh" --skip-backup --force
+    [ "$status" -eq 0 ]
+    [ ! -e "$HOME/.config/gh/hosts.yml" ]
+    [ -f "$HOME/.config/gh/config.yml" ]
+}
