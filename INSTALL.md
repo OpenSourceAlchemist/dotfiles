@@ -209,7 +209,7 @@ This will:
 - `editor`: `~/.vimrc`
 - `multiplexer`: `~/.tmux.conf`, `~/.tmux.conf.goodies`
 - `git`: `~/.gitconfig`
-- `tools`: `~/.asdfrc`, `~/.tool-versions`, `~/.envrc`, `~/.fzf.*`, `~/.terraformrc`, `~/.ssh/config`, `~/.config/gh/*`, `~/.config/openbox/*`
+- `tools`: `~/.asdfrc`, `~/.tool-versions`, `~/.envrc`, `~/.fzf.*`, `~/.terraformrc`, `~/.ssh/config`, `~/.config/openbox/*`
 - `agents`: Universal skeptical auditor rules and skills, Antigravity CLI statusline, pi-coding-agent configurations
 
 ### Environment Profiles (`--profile`)
@@ -245,7 +245,6 @@ Any executable file in these directories is executed in alphabetical order. Non-
 | `~/.asdfrc` | `mise/.asdfrc` | mise version manager config |
 | `~/.fzf.bash` | `fzf/.fzf.bash` | Fzf Bash integration |
 | `~/.fzf.zsh` | `fzf/.fzf.zsh` | Fzf Zsh integration |
-| `~/.config/gh/hosts.yml` | `*.yml` | GitHub CLI configuration |
 | `~/.dotfiles.local` | (ignored) | Personal overrides |
 | `~/.zshrc.local` | (ignored) | Zsh config overrides |
 
@@ -330,7 +329,6 @@ mise use python@3.11
 Ensure directories exist with correct ownership:
 
 ```bash
-mkdir -p ~/.config/gh
 mkdir -p ~/.dotzsh
 mkdir -p ~/.ssh/config.d
 ```
@@ -357,7 +355,7 @@ The uninstall script will:
 # Remove symlinks
 rm -f ~/.bashrc ~/.zshrc ~/.vimrc ~/.tmux.conf ~/.gitconfig
 rm -f ~/.fzf.bash ~/.fzf.zsh ~/.asdfrc
-rm -f ~/.ssh/config ~/.config/gh/*.yml
+rm -f ~/.ssh/config
 
 # Restore from backup (if exists)
 BACKUP_DIR=$(ls -d ~/.dotfiles_backup_* 2>/dev/null | head -1)

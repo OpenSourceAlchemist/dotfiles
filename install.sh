@@ -26,7 +26,7 @@ COMPONENT_FILES[shell]="bash/.bashrc bash/.bash_profile shell/.profile zsh/.zshr
 COMPONENT_FILES[editor]="vim/.vimrc"
 COMPONENT_FILES[multiplexer]="tmux/.tmux.conf tmux/.tmux.conf.goodies"
 COMPONENT_FILES[git]="git/.gitconfig"
-COMPONENT_FILES[tools]="mise/.asdfrc mise/.tool-versions direnv/.envrc fzf/.fzf.bash fzf/.fzf.zsh terraform/.terraformrc ssh/config:.ssh/config dotconfig/gh/config.yml:.config/gh/config.yml dotconfig/gh/hosts.yml:.config/gh/hosts.yml"
+COMPONENT_FILES[tools]="mise/.asdfrc mise/.tool-versions direnv/.envrc fzf/.fzf.bash fzf/.fzf.zsh terraform/.terraformrc ssh/config:.ssh/config"
 COMPONENT_FILES[gui]="Xorg/.Xdefaults dotconfig/openbox/rc.xml:.config/openbox/rc.xml"
 COMPONENT_FILES[agents]="agy/statusline.sh:.gemini/antigravity-cli/statusline.sh agents/skills/skeptical-auditor/SKILL.md:.agents/skills/skeptical-auditor/SKILL.md agents/rules/skeptical-auditor.md:.agents/rules/skeptical-auditor.md pi/prompts/skeptical-audit.md:.pi/agent/prompts/skeptical-audit.md"
 
@@ -143,6 +143,21 @@ cleanup_legacy_symlinks() {
             fi
         fi
     done < <(find "$target_dir" -maxdepth 1 -name "..*" -type l 2>/dev/null)
+
+    # Clean deprecated GitHub CLI symlinks that point into dotfiles
+    for deprecated_gh in "$target_dir/.config/gh/hosts.yml" "$target_dir/.config/gh/config.yml"; do
+        if [ -L "$deprecated_gh" ]; then
+            local dest
+            dest="$(readlink "$deprecated_gh" 2>/dev/null || true)"
+            local canonical_dest
+            canonical_dest="$(readlink -f "$deprecated_gh" 2>/dev/null || true)"
+            if [[ "$dest" == "$dotfiles_root"* ]] || { [ -n "$canonical_dest" ] && [[ "$canonical_dest" == "$canonical_repo"* ]]; }; then
+                log_info "Removing deprecated gh config symlink: $deprecated_gh -> $dest"
+                rm -f "$deprecated_gh"
+                removed_count=$((removed_count + 1))
+            fi
+        fi
+    done
 
     if [ "$removed_count" -gt 0 ]; then
         log_success "Cleaned up $removed_count legacy duplicate symlink(s)."

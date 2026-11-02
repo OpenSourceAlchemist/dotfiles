@@ -47,8 +47,6 @@ MANAGED_FILES=(
     ".terraformrc"
     ".Xdefaults"
     ".ssh/config"
-    ".config/gh/config.yml"
-    ".config/gh/hosts.yml"
     ".config/openbox/rc.xml"
     ".gemini/antigravity-cli/statusline.sh"
     ".agents/skills/skeptical-auditor/SKILL.md"
@@ -102,6 +100,20 @@ cleanup_legacy_symlinks() {
             fi
         fi
     done < <(find "$target_dir" -maxdepth 1 -name "..*" -type l 2>/dev/null)
+
+    # Clean deprecated GitHub CLI symlinks that point into dotfiles
+    for deprecated_gh in "$target_dir/.config/gh/hosts.yml" "$target_dir/.config/gh/config.yml"; do
+        if [ -L "$deprecated_gh" ]; then
+            local dest
+            dest="$(readlink "$deprecated_gh" 2>/dev/null || true)"
+            local canonical_dest
+            canonical_dest="$(readlink -f "$deprecated_gh" 2>/dev/null || true)"
+            if [[ "$dest" == "$dotfiles_root"* ]] || { [ -n "$canonical_dest" ] && [[ "$canonical_dest" == "$canonical_repo"* ]]; }; then
+                rm -f "$deprecated_gh"
+                log_success "Removed deprecated gh config symlink: $deprecated_gh"
+            fi
+        fi
+    done
 }
 
 restore_backup() {

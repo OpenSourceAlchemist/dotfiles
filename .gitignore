@@ -7,8 +7,8 @@
 !.ssh/config.d/.gitkeep
 .ssh/config.d/*.pub
 
-# GitHub CLI - Contains auth tokens
-dotconfig/gh/hosts.yml
+# GitHub CLI - Unmanaged local credentials
+dotconfig/gh/
 
 # Antigravity CLI / Gemini - Contains auth tokens and runtime state
 *oauth-token*

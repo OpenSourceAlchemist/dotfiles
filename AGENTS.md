@@ -32,7 +32,6 @@ This is a **cross-platform dotfiles management repository** that:
 ├── agy/               # Antigravity CLI configuration (statusline.sh)
 ├── bash/              # Bash configuration (.bashrc, .bash_profile)
 ├── dotconfig/         # Application configs (not in root)
-│   ├── gh/           # GitHub CLI configuration
 │   └── openbox/      # Openbox window manager
 ├── direnv/           # direnv .envrc
 ├── fzf/              # fzf keybindings
@@ -77,8 +76,6 @@ The `install.sh` script creates symlinks according to this mapping:
 | `fzf/.fzf.zsh` | `~/.fzf.zsh` |
 | `terraform/.terraformrc` | `~/.terraformrc` | (OpenTofu config, backward compatible filename)
 | `Xorg/.Xdefaults` | `~/.Xdefaults` |
-| `dotconfig/gh/config.yml` | `~/.config/gh/config.yml` |
-| `dotconfig/gh/hosts.yml` | `~/.config/gh/hosts.yml` |
 | `agy/statusline.sh` | `~/.gemini/antigravity-cli/statusline.sh` |
 | `agents/skills/skeptical-auditor/SKILL.md` | `~/.agents/skills/skeptical-auditor/SKILL.md` |
 | `agents/rules/skeptical-auditor.md` | `~/.agents/rules/skeptical-auditor.md` |
@@ -131,7 +128,7 @@ The `install.sh` script creates symlinks according to this mapping:
 - SSH private keys (`.ssh/*_key`)
 - SSH known_hosts
 - SSH local config overrides (`.ssh/config.d/*`)
-- GitHub CLI auth tokens (`dotconfig/gh/hosts.yml`)
+- GitHub CLI auth tokens (`~/.config/gh/hosts.yml` - unmanaged by design)
 - Antigravity CLI / Gemini OAuth tokens (`*oauth-token*`, `oauth_creds.json`) and runtime state (`agy/settings.json`, `agy/history.jsonl`)
 - Personal `.local` and `.override` files
 
@@ -256,7 +253,7 @@ Validation and security enforcement are handled at multiple layers:
 | **Environment** | `~/.envrc`, `~/.tool-versions` |
 | **Tooling** | `~/.fzf.bash`, `~/.fzf.zsh` |
 | **Graphics** | `~/.Xdefaults` |
-| **Applications** | `~/.config/gh/*`, `~/.terraformrc` (OpenTofu) |
+| **Applications** | `~/.config/openbox/*`, `~/.terraformrc` (OpenTofu) |
 
 ## Security Context
 

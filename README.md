@@ -185,7 +185,6 @@ This repository uses symlinks to manage dotfiles. When you run `./install.sh`, t
 | `~/.asdfrc` | `mise/.asdfrc` | mise version manager config |
 | `~/.fzf.bash` | `fzf/.fzf.bash` | Fzf Bash integration |
 | `~/.fzf.zsh` | `fzf/.fzf.zsh` | Fzf Zsh integration |
-| `~/.config/gh/*.yml` | `*.yml` | GitHub CLI configuration |
 | `~/.config/direnv/*.toml` | `*.toml` | direnv environment overrides |
 
 **Important Files:**
