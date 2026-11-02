@@ -83,6 +83,9 @@ make verify
 
 # Clean older backups
 make clean-backups
+
+# Clean legacy duplicate dotfile symlinks
+make clean-legacy
 ```
 
 ### Environment Profiles

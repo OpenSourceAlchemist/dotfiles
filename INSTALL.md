@@ -191,6 +191,9 @@ Run the installation script to symlink dotfiles:
 
 # Clean old backups keeping the 5 most recent
 ./install.sh --clean-backups
+
+# Clean legacy duplicate dotfile symlinks (e.g., ..zshrc)
+./install.sh --clean-legacy
 ```
 
 This will:
